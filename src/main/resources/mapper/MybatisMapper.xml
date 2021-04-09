@@ -3,13 +3,15 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dao.MybatisDao">
-    <insert id="insertBiliBiliDynamic" parameterType="pojo.BiliBiliDynamic">
-        insert into trend
-        (name,content)
-        values(#{name},#{description})
+    <insert id="insertBiliBiliDynamic" parameterType="BiliBili.pojo.BiliBiliDynamic">
+        insert ignore into dynamic
+        (NO,id,name,type,uploadTime,content,imgURL)
+        values(#{NO},#{id},#{name},#{type},#{uploadTime},#{content},#{imgURL})
+    </insert>
+    <insert id="insertBiliBiliUser" parameterType="BiliBili.pojo.BiliBiliUser">
+        insert ignore into akiUser
+            (id,name,avatarURL)
+        values(#{id},#{name},#{avatarURL})
     </insert>
 
-    <select id="selectBiliBiliDynamic" resultType="pojo.BiliBiliDynamic">
-        select trend.name,trend.content from trend where id= "AkiSky"
-    </select>
 </mapper>

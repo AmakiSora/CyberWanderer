@@ -1,8 +1,9 @@
 package dao;
 
-import pojo.BiliBiliDynamic;
+import BiliBili.pojo.BiliBiliDynamic;
+import BiliBili.pojo.BiliBiliUser;
 
 public interface MybatisDao {
     void insertBiliBiliDynamic(BiliBiliDynamic biliDynamic);
-    BiliBiliDynamic selectBiliBiliDynamic();
+    void insertBiliBiliUser(BiliBiliUser biliUser);
 }

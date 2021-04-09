@@ -10,7 +10,7 @@
                 <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
                 <property name="url" value="jdbc:mysql://47.103.220.45:3306/akisky?useUnicode=true&amp;charaterEncoding=UTF-8&amp;serverTimezone=UTC"/>
                 <property name="username" value="AkiSky"/>
-                <property name="password" value="GMGGPOKSIRUDE784521"/>
+                <property name="password" value="GMGGPOKSIRUDE"/>
             </dataSource>
         </environment>
     </environments>

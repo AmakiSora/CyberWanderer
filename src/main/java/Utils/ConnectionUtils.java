@@ -1,3 +1,5 @@
+package Utils;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -7,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Utils {
+public class ConnectionUtils {
     public static class CatchApi {
         private static HttpURLConnection connectToURL(String originalUrl) throws Exception {
             URL url = new URL(originalUrl);
