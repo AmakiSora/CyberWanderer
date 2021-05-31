@@ -16,7 +16,12 @@ import java.util.List;
 
 public class GetPersons {
     public static void get() throws Exception {
-        String fakeURL = "https://fakercloud.com/api/v1/schema/qNrDBAam?apiKey=nx9uRHw9&rows=100";
+//        String fakeURL = "https://fakercloud.com/api/v1/schema/qNrDBAam?apiKey=nx9uRHw9&rows=100";
+//        String fakeURL = "https://fakercloud.com/api/v1/schema/62Jp0CsI?apiKey=o319LEFD&rows=100";
+//        String fakeURL = "https://fakercloud.com/api/v1/schema/BFMuRdr6?apiKey=ohKaa1CF&rows=100";
+//        String fakeURL = "https://fakercloud.com/api/v1/schema/kmkxMwsm?apiKey=0DhyG1m7&rows=100";
+//        String fakeURL = "https://fakercloud.com/api/v1/schema/NDr0OhJN?apiKey=eDWoI1TD&rows=100";
+        String fakeURL = "https://fakercloud.com/api/v1/schema/7YA9l2zJ?apiKey=K9ekRKaB&rows=100";//05
         String a = ConnectionUtils.CatchApi.getJsonFromApi(fakeURL);
         JSONObject json = (JSONObject) JSON.parse(a);
         List<JSONObject> list = (List<JSONObject>) json.get("rows");
