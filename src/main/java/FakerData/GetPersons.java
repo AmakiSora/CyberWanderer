@@ -10,19 +10,21 @@ import dao.FakerDataDao;
 import dao.Utils.MybatisUtils;
 import org.apache.ibatis.session.SqlSession;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class GetPersons {
     public static void get() throws Exception {
-        String fakeURL = "https://fakercloud.com/api/v1/schema/62Jp0CsI?apiKey=o319LEFD&rows=100";
+        String fakeURL = "https://fakercloud.com/api/v1/schema/qNrDBAam?apiKey=nx9uRHw9&rows=100";
         String a = ConnectionUtils.CatchApi.getJsonFromApi(fakeURL);
         JSONObject json = (JSONObject) JSON.parse(a);
         List<JSONObject> list = (List<JSONObject>) json.get("rows");
         SqlSession sqlSession = MybatisUtils.getSqlSession();
         FakerDataDao dao = sqlSession.getMapper(FakerDataDao.class);
-        Person person = new Person();
+        List<Person> lp = new ArrayList<>();
         for (JSONObject p:list){
+            Person person = new Person();
             person.setLast_name(p.getString("last_name"));
             person.setFirst_name(p.getString("first_name"));
             person.setCity(p.getString("city"));
@@ -30,9 +32,16 @@ public class GetPersons {
             person.setGender(p.getString("gender"));
             person.setPhone(p.getString("phone"));
             person.setEmail(p.getString("email"));
-            dao.insertPerson(person);
+//            dao.insertPerson(person);
+            lp.add(person);
         }
+        dao.insertPersons(lp);
         sqlSession.commit();
         sqlSession.close();
+    }
+    public static void get(int i) throws Exception {
+        for (int j = 0; j < i; j++) {
+            get();
+        }
     }
 }

@@ -8,4 +8,12 @@
         (last_name,first_name,city,birth_date,gender,phone,email)
         values(#{last_name},#{first_name},#{city},#{birth_date},#{gender},#{phone},#{email})
     </insert>
+    <insert id="insertPersons" >
+        insert ignore into person
+        (last_name,first_name,city,birth_date,gender,phone,email)
+        values
+        <foreach collection="list" item="person" separator=",">
+            (#{person.last_name},#{person.first_name},#{person.city},#{person.birth_date},#{person.gender},#{person.phone},#{person.email})
+        </foreach>
+    </insert>
 </mapper>
