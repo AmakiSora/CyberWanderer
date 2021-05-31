@@ -11,7 +11,7 @@ import java.io.InputStream;
 public class MybatisUtils {
     private static final SqlSessionFactory sqlSessionFactory;
     static {
-        String resource = "mybatisConfig.xml";
+        String resource = "fakerDataBatisConfig.xml";
         InputStream inputStream = null;
         try {
             inputStream = Resources.getResourceAsStream(resource);
