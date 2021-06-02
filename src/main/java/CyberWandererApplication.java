@@ -8,7 +8,7 @@ public class CyberWandererApplication {
     public static void main(String[] args) throws Exception {
 //        GetBiliBiliDynamic.getNotLoginDynamic();
 //        GetBiliBiliDynamic.GetBiliBiliDynamic();
-//            GetPersons.get(100);
-            GetProduct.get(100);
+            GetPersons.get(600);
+            GetProduct.get(600);
     }
 }
