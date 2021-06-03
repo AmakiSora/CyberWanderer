@@ -1,13 +1,12 @@
-package BiliBili;
+package com.bilibili;
 
-import BiliBili.pojo.BiliBiliUser;
-import Utils.ConnectionUtils;
+import com.bilibili.pojo.BiliBiliUser;
+import com.utils.ConnectionUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import dao.MybatisDao;
-import dao.Utils.MybatisUtils;
-import org.apache.ibatis.session.SqlSession;
-import BiliBili.pojo.BiliBiliDynamic;
+import com.bilibili.pojo.BiliBiliDynamic;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -15,8 +14,12 @@ import java.util.List;
 /**
  * 获取霹雳霹雳动态类
  */
+@Service
 public class GetBiliBiliDynamic {
-    public static void GetBiliBiliDynamic() throws Exception {
+    @Autowired
+    private ConnectionUtils connectionUtils;
+
+    public void GetBiliBiliDynamic() throws Exception {
         getSomeDynamic(20);
 //        getUserDynamic(100,10);
 //        getUserDynamic(101,106,10,100);
@@ -30,7 +33,7 @@ public class GetBiliBiliDynamic {
      * @param total 获取多少次
      * @throws Exception
      */
-    public static void getSomeDynamic(int total) throws Exception {
+    public void getSomeDynamic(int total) throws Exception {
         String xxx_offset = "0";
         String unlogin_dynamics = "unlogin_dynamics?fake_uid=961737&hot_offset="+xxx_offset;
         for (int i = 0; i < total; i++) {
@@ -49,7 +52,7 @@ public class GetBiliBiliDynamic {
      * @param up_sum 获取多少次
      * @throws Exception
      */
-    public static void getUserDynamic(int host_uid,int up_sum) throws Exception {
+    public void getUserDynamic(int host_uid,int up_sum) throws Exception {
         String xxx_offset = "0";
         String space_history = "space_history?host_uid="+host_uid+"&offset_dynamic_id="+xxx_offset;//UP主动态
         for (int i = 0; i < up_sum; i++) {//总循环次数
@@ -69,7 +72,7 @@ public class GetBiliBiliDynamic {
      * @param total 总共获取多少次
      * @throws Exception
      */
-    public static void getUserDynamic(int host_uid,int last_uid,int up_sum,int total) throws Exception {
+    public void getUserDynamic(int host_uid,int last_uid,int up_sum,int total) throws Exception {
         String xxx_offset = "0";
         int sum = 0;
         String space_history = "space_history?host_uid="+host_uid+"&offset_dynamic_id="+xxx_offset;//UP主动态
@@ -99,17 +102,17 @@ public class GetBiliBiliDynamic {
      * @return 返回最后一条动态的id,如果没有查询到动态则返回"无了"
      * @throws Exception
      */
-    public static String getDynamic(String parameter) throws Exception {
+    public String getDynamic(String parameter) throws Exception {
         String urlHeader = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/";
         String url = urlHeader+parameter;
-        String a = ConnectionUtils.CatchApi.getJsonFromApi(url);
+        String a = connectionUtils.getJsonFromApi(url);
         JSONObject json = (JSONObject) JSON.parse(a);
         List<JSONObject> list = (List<JSONObject>) json.getJSONObject("data").get("cards");
         if (list==null){
             return "无了";
         }
-        SqlSession sqlSession = MybatisUtils.getSqlSession();
-        MybatisDao dao = sqlSession.getMapper(MybatisDao.class);
+//        SqlSession sqlSession = MybatisUtils.getSqlSession();
+//        MybatisDao dao = sqlSession.getMapper(MybatisDao.class);
         BiliBiliDynamic biliDynamic = new BiliBiliDynamic();
         BiliBiliUser biliUser = new BiliBiliUser();
         String dynamic_id = "";
@@ -147,11 +150,11 @@ public class GetBiliBiliDynamic {
             biliUser.setAvatarURL(avatarURL);
             biliUser.setId(userInfo.getString("uid"));
             biliUser.setName(userInfo.getString("uname"));
-            dao.insertBiliBiliDynamic(biliDynamic);
-            dao.insertBiliBiliUser(biliUser);
+//            dao.insertBiliBiliDynamic(biliDynamic);
+//            dao.insertBiliBiliUser(biliUser);
         }
-        sqlSession.commit();
-        sqlSession.close();
+//        sqlSession.commit();
+//        sqlSession.close();
         return dynamic_id;
     }
 }

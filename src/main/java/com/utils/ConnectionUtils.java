@@ -1,34 +1,33 @@
-package Utils;
+package com.utils;
+
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-
+@Service
 public class ConnectionUtils {
-    public static class CatchApi {
-        private static HttpURLConnection connectToURL(String originalUrl) throws Exception {
-            URL url = new URL(originalUrl);
-            HttpURLConnection connection = null;
-            try {
-                connection = (HttpURLConnection) url.openConnection();
-            } catch (IOException e) {
-                System.out.println("请求过于频繁，请一小时后再获取数据");
-                e.printStackTrace();
-            }
-            connection.setConnectTimeout(10000);// 设置连接主机服务器超时时间：10000毫秒
-            connection.setReadTimeout(60000);// 设置读取主机服务器返回数据超时时间：60000毫秒
-            /*connection.setChunkedStreamingMode(5);*/// 设置重连次数为五次
-            connection.setRequestMethod("GET");//请求方式为get
-            /*connection.setRequestProperty("Content-Type", "application/json");*/
-            return connection;
+    private HttpURLConnection connectToURL(String originalUrl) throws Exception {
+        URL url = new URL(originalUrl);
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+        } catch (IOException e) {
+            System.out.println("请求过于频繁，请一小时后再获取数据");
+            e.printStackTrace();
         }
+        connection.setConnectTimeout(10000);// 设置连接主机服务器超时时间：10000毫秒
+        connection.setReadTimeout(60000);// 设置读取主机服务器返回数据超时时间：60000毫秒
+        /*connection.setChunkedStreamingMode(5);*/// 设置重连次数为五次
+        connection.setRequestMethod("GET");//请求方式为get
+        /*connection.setRequestProperty("Content-Type", "application/json");*/
+        return connection;
+    }
         //获取输入的api的数据
-        public static String getJsonFromApi(String originalUrl) throws Exception {
+        public String getJsonFromApi(String originalUrl) throws Exception {
             String result = "";
             HttpURLConnection connection = connectToURL(originalUrl);
             // 通过连接对象获取一个输入流，向远程读取
@@ -100,7 +99,7 @@ public class ConnectionUtils {
             return dataJSONP;
         }
 
-        public static String getJsonFromApiByCook(String originalUrl, String cookie) throws Exception {
+        public String getJsonFromApiByCook(String originalUrl, String cookie) throws Exception {
             String result = "";
             HttpURLConnection connection = connectToURL(originalUrl);
             connection.setRequestProperty("cookie", cookie);
@@ -212,6 +211,6 @@ public class ConnectionUtils {
 
             return result;
         }
-    }
+
 
 }

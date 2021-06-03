@@ -2,13 +2,13 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="dao.MybatisDao">
-    <insert id="insertBiliBiliDynamic" parameterType="BiliBili.pojo.BiliBiliDynamic">
+<mapper namespace="com.dao.BiliBiliDao">
+    <insert id="insertBiliBiliDynamic" parameterType="com.bilibili.pojo.BiliBiliDynamic">
         insert ignore into dynamic
         (NO,id,name,type,uploadTime,content,imgURL)
         values(#{NO},#{id},#{name},#{type},#{uploadTime},#{content},#{imgURL})
     </insert>
-    <insert id="insertBiliBiliUser" parameterType="BiliBili.pojo.BiliBiliUser">
+    <insert id="insertBiliBiliUser" parameterType="com.bilibili.pojo.BiliBiliUser">
         insert ignore into akiUser
             (id,name,avatarURL)
         values(#{id},#{name},#{avatarURL})

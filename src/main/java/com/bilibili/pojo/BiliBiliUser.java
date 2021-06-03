@@ -1,4 +1,4 @@
-package BiliBili.pojo;
+package com.bilibili.pojo;
 
 import lombok.Data;
 

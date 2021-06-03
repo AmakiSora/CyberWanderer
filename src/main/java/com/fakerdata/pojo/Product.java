@@ -1,4 +1,4 @@
-package FakerData.pojo;
+package com.fakerdata.pojo;
 
 import lombok.Data;
 

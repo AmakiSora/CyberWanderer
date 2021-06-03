@@ -1,19 +1,23 @@
-package FakerData;
+package com.fakerdata;
 
-import FakerData.pojo.Product;
-import Utils.ConnectionUtils;
+import com.fakerdata.pojo.Product;
+import com.utils.ConnectionUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import dao.FakerDataDao;
-import dao.Utils.MybatisUtils;
-import org.apache.ibatis.session.SqlSession;
+import com.dao.FakerDataDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+@Service
 public class GetProduct {
-    public static void get(int i) throws Exception {
+    @Autowired
+    private ConnectionUtils connectionUtils;
+    @Autowired
+    private FakerDataDao fakerDataDao;
+    public String get(int i) throws Exception {
         int a = 0;
         String fakeURL = "";
         List<String> faker = new ArrayList<>();
@@ -30,21 +34,20 @@ public class GetProduct {
                 a++;
                 if (a>=faker.size()){
                     System.out.println("无了");
-                    return;
+                    return "没有次数了";
                 }
                 fakeURL = faker.get(a);
             }
         }
+        return "完成";
     }
-    public static String get(String URL) throws Exception {
-        String a = ConnectionUtils.CatchApi.getJsonFromApi(URL);
+    public String get(String URL) throws Exception {
+        String a = connectionUtils.getJsonFromApi(URL);
         JSONObject json = (JSONObject) JSON.parse(a);
         List<JSONObject> list = (List<JSONObject>) json.get("rows");
         if (list==null){
             return "无了";
         }
-        SqlSession sqlSession = MybatisUtils.getSqlSession();
-        FakerDataDao dao = sqlSession.getMapper(FakerDataDao.class);
         List<Product> lp = new ArrayList<>();
         for (JSONObject p:list){
             Product product = new Product();
@@ -56,9 +59,7 @@ public class GetProduct {
             product.setSell_time(new Date(p.getString("sell_time")));
             lp.add(product);
         }
-        dao.insertProduct(lp);
-        sqlSession.commit();
-        sqlSession.close();
+        fakerDataDao.insertProduct(lp);
         return "";
     }
 }
