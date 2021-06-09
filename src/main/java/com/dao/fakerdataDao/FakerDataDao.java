@@ -1,4 +1,4 @@
-package com.dao;
+package com.dao.fakerdataDao;
 
 import com.fakerdata.pojo.Person;
 import com.fakerdata.pojo.Product;

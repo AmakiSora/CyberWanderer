@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dao.FakerDataDao">
+<mapper namespace="com.dao.fakerdataDao.FakerDataDao">
     <insert id="insertPerson" parameterType="com.fakerdata.pojo.Person">
         insert ignore into person
         (last_name,first_name,city,birth_date,gender,phone,email)

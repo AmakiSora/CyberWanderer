@@ -7,9 +7,5 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class CyberWandererApplication {
     public static void main(String[] args) {
         SpringApplication.run(CyberWandererApplication.class, args);
-//        GetBiliBiliDynamic.getNotLoginDynamic();
-//        GetBiliBiliDynamic.GetBiliBiliDynamic();
-//            GetPersons.get(600);
-//            GetProduct.get(600);
     }
 }

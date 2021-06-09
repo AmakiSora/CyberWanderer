@@ -1,6 +1,7 @@
 package com.bilibili;
 
 import com.bilibili.pojo.BiliBiliUser;
+import com.dao.akiskyDao.AkiSkyDao;
 import com.utils.ConnectionUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -18,6 +19,8 @@ import java.util.List;
 public class GetBiliBiliDynamic {
     @Autowired
     private ConnectionUtils connectionUtils;
+    @Autowired
+    private AkiSkyDao akiSkyDao;
 
     public void GetBiliBiliDynamic() throws Exception {
         getSomeDynamic(20);
@@ -150,11 +153,10 @@ public class GetBiliBiliDynamic {
             biliUser.setAvatarURL(avatarURL);
             biliUser.setId(userInfo.getString("uid"));
             biliUser.setName(userInfo.getString("uname"));
-//            dao.insertBiliBiliDynamic(biliDynamic);
-//            dao.insertBiliBiliUser(biliUser);
+            akiSkyDao.insertBiliBiliDynamic(biliDynamic);
+            akiSkyDao.insertBiliBiliUser(biliUser);
         }
-//        sqlSession.commit();
-//        sqlSession.close();
+
         return dynamic_id;
     }
 }

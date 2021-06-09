@@ -4,7 +4,7 @@ import com.fakerdata.pojo.Product;
 import com.utils.ConnectionUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dao.FakerDataDao;
+import com.dao.fakerdataDao.FakerDataDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
