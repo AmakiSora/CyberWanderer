@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.twitter.twitterDataDao.TwitterDataDao">
+    <insert id="insertTwitterUser" parameterType="com.twitter.pojo.TwitterUser">
+        insert ignore into user
+        (name,username,created_at,birthday,description,friends_count,followers_count,location,display_url)
+        values(#{name},#{username},#{created_at},#{birthday},#{description},#{friends_count},#{followers_count},#{location},#{display_url})
+    </insert>
+</mapper>

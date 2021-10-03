@@ -12,6 +12,12 @@ spring:
       password: ENC(nk7lU2rIWDxOIYHab/7L2i6pknl+l9fT)
       driver-class-name: com.mysql.cj.jdbc.Driver
       url: jdbc:mysql://47.103.220.45:3306/akisky?useUnicode=true&charaterEncoding=UTF-8&serverTimezone=UTC
+  twitterdatadb:
+    datasource:
+      username: ENC(2utPJty4yNtPWriXg+WJNmxLI573k3gK)
+      password: ENC(iQPuaIDwqSmptaN8Uj600zt1c5MWcuBylWDJUODsXQQ=)
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://47.103.220.45:3306/twitterdata?useUnicode=true&charaterEncoding=UTF-8&serverTimezone=UTC
 #mybatis xml位置
 mybatis:
   mapper-locations: classpath:mapper/*.xml
