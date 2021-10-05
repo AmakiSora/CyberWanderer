@@ -2,12 +2,12 @@ package com.twitter.pojo;
 
 import lombok.Data;
 
-import java.sql.Timestamp;
 
 @Data
 public class TwitterUser {//推特帐号
     private String name;//名称
     private String username;//唯一用户名
+    private String user_id;//唯一id
     private String created_at;//帐号创建时间
     private String birthday;//生日
     private String description;//简介
