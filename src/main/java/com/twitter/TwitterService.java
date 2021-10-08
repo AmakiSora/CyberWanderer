@@ -75,78 +75,39 @@ public class TwitterService {
                     String entryId = dd.getString("entryId");
                     if (entryId.matches("^tweet-[0-9]*")) { //确认为用户推文
                         Tweet tweet = new Tweet();
-                        JSONObject itemContent = dd.getJSONObject("content").getJSONObject("itemContent");
-                        tweet.setTweet_display_type(itemContent.getString("tweetDisplayType"));
-                        JSONObject result = itemContent.getJSONObject("tweet_results").getJSONObject("result");
-                        String username = result.getJSONObject("core")
-                                .getJSONObject("user_results")
-                                .getJSONObject("result")
-                                .getJSONObject("legacy")
-                                .getString("screen_name");
-                        tweet.setUsername(username);//唯一用户名
+                        JSONObject result = dd.getJSONObject("content")
+                                .getJSONObject("itemContent")
+                                .getJSONObject("tweet_results")
+                                .getJSONObject("result");
+                        analyzeTweetsResultJSON(result,tweet,tweets);
 
-                        String id = result.getJSONObject("core")
-                                .getJSONObject("user_results")
-                                .getJSONObject("result")
-                                .getString("id");
-                        tweet.setUser_id(id);//唯一id
+//                            以下废弃
+//                            tweet.setQuoted_tweet_id(legacy.getString("quoted_status_id_str"));
+//                            JSONObject quotedResult = result.getJSONObject("quoted_status_result").getJSONObject("result");
+//                            JSONObject user_results = quotedResult.getJSONObject("core")
+//                                    .getJSONObject("user_results")
+//                                    .getJSONObject("result");
+//                            tweet.setQuoted_user_id(user_results.getString("id"));//转推人唯一id
+//                            JSONObject quoted_user_legacy = user_results.getJSONObject("legacy");
+//                            tweet.setQuoted_name(quoted_user_legacy.getString("name"));//转推人名称
+//                            tweet.setQuoted_username(quoted_user_legacy.getString("screen_name"));//转推人唯一用户名
+//
+//                            JSONObject quoted_tweet_legacy = quotedResult.getJSONObject("legacy");
+//                            tweet.setQuoted_tweet_id(quoted_tweet_legacy.getString("id_str"));
+//                            tweet.setQuoted_created_at(quoted_tweet_legacy.getString("created_at"));
+//                            tweet.setQuoted_full_text(quoted_tweet_legacy.getString("full_text"));
+//                            以上废弃
 
-                        JSONObject legacy = result.getJSONObject("legacy");
-                        tweet.setTweet_id(legacy.getString("id_str"));//推文id
-                        tweet.setFull_text(legacy.getString("full_text"));//推文内容
-                        tweet.setCreated_at(legacy.getString("created_at"));//创建时间
-
-                        JSONObject entities = legacy.getJSONObject("entities");
-                        List<JSONObject> hashtags_List = (List<JSONObject>) entities.get("hashtags");
-                        if (hashtags_List != null && !hashtags_List.isEmpty()){ //有标签
-                            StringBuilder tag = new StringBuilder();
-                            for (JSONObject h : hashtags_List) {
-                                tag.append("#").append(h.getString("text"));
-                            }
-                            tweet.setTweet_hashtags(tag.toString());//推文标签
-                        }
-
-                        List<JSONObject> media_List = (List<JSONObject>) entities.get("media");
-                        if (media_List != null && !media_List.isEmpty()){
-                            StringBuilder media_urls = new StringBuilder();
-                            for (JSONObject m : media_List) {
-                                media_urls.append("|").append(m.getString("media_url_https"));
-                            }
-                            tweet.setTweet_media_urls(media_urls.toString());//推文图片地址
-                            //todo 待完善
-                        }
-
-                        if (legacy.getBoolean("is_quote_status")) { //true为转推 false不是
-                            tweet.setTweet_type("Retweeted");//推文类型!!!
-                            tweet.setQuoted_tweet_id(legacy.getString("quoted_status_id_str"));
-                            JSONObject quotedResult = result.getJSONObject("quoted_status_result").getJSONObject("result");
-                            JSONObject user_results = quotedResult.getJSONObject("core")
-                                    .getJSONObject("user_results")
-                                    .getJSONObject("result");
-                            tweet.setQuoted_user_id(user_results.getString("id"));//转推人唯一id
-                            JSONObject quoted_user_legacy = user_results.getJSONObject("legacy");
-                            tweet.setQuoted_name(quoted_user_legacy.getString("name"));//转推人名称
-                            tweet.setQuoted_username(quoted_user_legacy.getString("screen_name"));//转推人唯一用户名
-
-                            JSONObject quoted_tweet_legacy = quotedResult.getJSONObject("legacy");
-                            tweet.setQuoted_tweet_id(quoted_tweet_legacy.getString("id_str"));
-                            tweet.setQuoted_created_at(quoted_tweet_legacy.getString("created_at"));
-                            tweet.setQuoted_full_text(quoted_tweet_legacy.getString("full_text"));
-//                            tweet.setQuoted_tweet_img();
-                            //todo 完成转推的内容
-                        } else if (entryId.matches("^homeConversation-[0-9-a-zA-Z]*")) { //连续推文
-                            System.out.println("连续推文");
-                        } else if (entryId.matches("^promotedTweet-[0-9-a-zA-Z]*")) { //推广推文(广告)
+                    } else if (entryId.matches("^homeConversation-[0-9-a-zA-Z]*")) { //连续推文
+//                        System.out.println("连续推文");
+                    } else if (entryId.matches("^promotedTweet-[0-9-a-zA-Z]*")) { //推广推文(广告)
 //                        System.out.println("推广推文,暂时不处理");
-                        } else if (entryId.matches("^whoToFollow-[0-9-a-zA-Z]*")) { //推荐关注
+                    } else if (entryId.matches("^whoToFollow-[0-9-a-zA-Z]*")) { //推荐关注
 //                        System.out.println("推荐关注,暂时不处理");
-                        } else if (entryId.matches("^cursor-top-[0-9-a-zA-Z]*")) { //光标顶部
+                    } else if (entryId.matches("^cursor-top-[0-9-a-zA-Z]*")) { //光标顶部
 //                        System.out.println("光标顶部,暂时不处理");
-                        } else if (entryId.matches("^cursor-bottom-[0-9-a-zA-Z]*")) { //光标底部
+                    } else if (entryId.matches("^cursor-bottom-[0-9-a-zA-Z]*")) { //光标底部
 //                        System.out.println("光标底部,暂时不处理");
-                        }
-
-                        tweets.add(tweet);
                     }
                 }
             }else if ("TimelinePinEntry".equals(d.get("type"))){//置顶推文
@@ -154,5 +115,71 @@ public class TwitterService {
             }
         }
         return "";
+    }
+    private void analyzeTweetsResultJSON(JSONObject result,Tweet tweet,List<Tweet> tweets){//用于分析推文里的Result
+        String name = result.getJSONObject("core")
+                .getJSONObject("user_results")
+                .getJSONObject("result")
+                .getJSONObject("legacy")
+                .getString("name");
+        tweet.setName(name);//名称
+
+        String username = result.getJSONObject("core")
+                .getJSONObject("user_results")
+                .getJSONObject("result")
+                .getJSONObject("legacy")
+                .getString("screen_name");
+        tweet.setUsername(username);//唯一用户名
+
+        String id = result.getJSONObject("core")
+                .getJSONObject("user_results")
+                .getJSONObject("result")
+                .getString("id");
+        tweet.setUser_id(id);//唯一id
+
+        JSONObject legacy = result.getJSONObject("legacy");
+        tweet.setTweet_id(legacy.getString("id_str"));//推文id
+        tweet.setFull_text(legacy.getString("full_text"));//推文内容
+        tweet.setCreated_at(legacy.getString("created_at"));//创建时间
+
+        JSONObject entities = legacy.getJSONObject("entities");
+        List<JSONObject> hashtags_List = (List<JSONObject>) entities.get("hashtags");
+        if (hashtags_List != null && !hashtags_List.isEmpty()){ //有标签
+            StringBuilder tag = new StringBuilder();
+            for (JSONObject h : hashtags_List) {
+                tag.append("#").append(h.getString("text"));
+            }
+            tweet.setTweet_hashtags(tag.toString());//推文标签
+        }
+
+        List<JSONObject> media_List = (List<JSONObject>) entities.get("media");
+        if (media_List != null && !media_List.isEmpty()){
+            StringBuilder media_urls = new StringBuilder();
+            for (JSONObject m : media_List) {
+                media_urls.append("|").append(m.getString("media_url_https"));
+            }
+            tweet.setTweet_media_urls(media_urls.toString());//推文图片地址
+        }
+
+        List<JSONObject> urls_list = (List<JSONObject>) entities.get("urls");
+        if (urls_list != null && !urls_list.isEmpty()){
+            StringBuilder urls = new StringBuilder();
+            for (JSONObject m : urls_list) {
+                urls.append("|").append(m.getString("expanded_url"));
+            }
+            tweet.setTweet_urls(urls.toString());//推文附加地址
+        }
+        if (legacy.getBoolean("is_quote_status")) { //true为转推 false不是
+            tweet.setTweet_type("Retweeted");//推文类型!!!
+            tweet.setQuoted_tweet_id(legacy.getString("quoted_status_id_str"));//转推id
+            tweets.add(tweet);
+            System.out.println(tweet);
+            JSONObject quotedResult = result.getJSONObject("quoted_status_result").getJSONObject("result");
+            analyzeTweetsResultJSON(quotedResult,new Tweet(),tweets);//递归分析转推的推文
+        }else {
+            tweet.setTweet_type("OriginalTweet");
+            tweets.add(tweet);
+            System.out.println(tweet);
+        }
     }
 }

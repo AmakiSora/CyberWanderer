@@ -4,7 +4,8 @@ import java.io.*;
 
 public class BigStringUtils {
     public StringBuilder get(){
-        String Path = "D:\\cosmos\\test\\json.txt";
+//        String Path = "D:\\cosmos\\test\\json.txt";//pc
+        String Path = "/Users/cosmos/OneDrive/twitter/json.txt";//mac
         StringBuilder stringBuilder = new StringBuilder();
         try (FileReader reader =new FileReader(Path)){
             char[] chars = new char[32768];//一次性读取32768个字符

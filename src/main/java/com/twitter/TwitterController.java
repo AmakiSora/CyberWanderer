@@ -28,6 +28,7 @@ public class TwitterController {
     @GetMapping("/getUserTweets")
     public String getUserTweets(StringBuilder b) {//获取某用户推文
         //UserTweets?
+        twitterService = new TwitterService();//测试用记得删
         twitterService.analyzeUserTweetsJSON(b);
         return "getUserTweets";
     }
