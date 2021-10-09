@@ -8,4 +8,19 @@
         (name,username,user_id,created_at,birthday,description,friends_count,followers_count,location,display_url)
         values(#{name},#{username},#{user_id},#{created_at},#{birthday},#{description},#{friends_count},#{followers_count},#{location},#{display_url})
     </insert>
+    <insert id="insertTweet" parameterType="com.twitter.pojo.Tweet">
+        insert ignore into tweet
+        (name,username,user_id,created_at,full_text,tweet_id,tweet_media_urls,tweet_hashtags,tweet_urls,tweet_type,quoted_tweet_id,status)
+        values
+        (#{name},#{username},#{user_id},#{created_at},#{full_text},#{tweet_id},#{tweet_media_urls},#{tweet_hashtags},#{tweet_urls},#{tweet_type},#{quoted_tweet_id},#{status})
+    </insert>
+    <insert id="insertTweets">
+        insert ignore into tweet
+        (name,username,user_id,created_at,full_text,tweet_id,tweet_media_urls,tweet_hashtags,tweet_urls,tweet_type,quoted_tweet_id,status)
+        values
+        <foreach collection="list" item="Tweet" separator=",">
+            (#{Tweet.name},#{Tweet.username},#{Tweet.user_id},#{Tweet.created_at},#{Tweet.full_text},#{Tweet.tweet_id},#{Tweet.tweet_media_urls},#{Tweet.tweet_hashtags},#{Tweet.tweet_urls},#{Tweet.tweet_type},#{Tweet.quoted_tweet_id},#{Tweet.status})
+        </foreach>
+    </insert>
+
 </mapper>

@@ -11,8 +11,6 @@ import java.io.FileNotFoundException;
 public class TestWithNoSpring {
     public static void main(String[] args) {
         TwitterController t = new TwitterController();
-        {
-            t.getUserTweets(new BigStringUtils().get());
-        }
+
     }
 }

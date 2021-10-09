@@ -1,14 +1,10 @@
 package com.twitter;
 
-import com.alibaba.fastjson.JSONObject;
-import com.twitter.pojo.Tweet;
+import com.utils.BigStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/Twitter")
@@ -25,10 +21,12 @@ public class TwitterController {
 //        twitterService.analyzeUserDetailJSON(a);
         return "getUserDetail";
     }
+    //http://localhost:4567/Twitter/getUserTweets
     @GetMapping("/getUserTweets")
-    public String getUserTweets(StringBuilder b) {//获取某用户推文
+    public String getUserTweets() {//获取某用户推文
         //UserTweets?
-        twitterService = new TwitterService();//测试用记得删
+//        twitterService = new TwitterService();//测试用记得删
+        StringBuilder b = new BigStringUtils().get();
         twitterService.analyzeUserTweetsJSON(b);
         return "getUserTweets";
     }

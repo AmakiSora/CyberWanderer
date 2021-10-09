@@ -81,23 +81,6 @@ public class TwitterService {
                                 .getJSONObject("result");
                         analyzeTweetsResultJSON(result,tweet,tweets);
 
-//                            以下废弃
-//                            tweet.setQuoted_tweet_id(legacy.getString("quoted_status_id_str"));
-//                            JSONObject quotedResult = result.getJSONObject("quoted_status_result").getJSONObject("result");
-//                            JSONObject user_results = quotedResult.getJSONObject("core")
-//                                    .getJSONObject("user_results")
-//                                    .getJSONObject("result");
-//                            tweet.setQuoted_user_id(user_results.getString("id"));//转推人唯一id
-//                            JSONObject quoted_user_legacy = user_results.getJSONObject("legacy");
-//                            tweet.setQuoted_name(quoted_user_legacy.getString("name"));//转推人名称
-//                            tweet.setQuoted_username(quoted_user_legacy.getString("screen_name"));//转推人唯一用户名
-//
-//                            JSONObject quoted_tweet_legacy = quotedResult.getJSONObject("legacy");
-//                            tweet.setQuoted_tweet_id(quoted_tweet_legacy.getString("id_str"));
-//                            tweet.setQuoted_created_at(quoted_tweet_legacy.getString("created_at"));
-//                            tweet.setQuoted_full_text(quoted_tweet_legacy.getString("full_text"));
-//                            以上废弃
-
                     } else if (entryId.matches("^homeConversation-[0-9-a-zA-Z]*")) { //连续推文
 //                        System.out.println("连续推文");
                     } else if (entryId.matches("^promotedTweet-[0-9-a-zA-Z]*")) { //推广推文(广告)
@@ -173,13 +156,12 @@ public class TwitterService {
             tweet.setTweet_type("Retweeted");//推文类型!!!
             tweet.setQuoted_tweet_id(legacy.getString("quoted_status_id_str"));//转推id
             tweets.add(tweet);
-            System.out.println(tweet);
             JSONObject quotedResult = result.getJSONObject("quoted_status_result").getJSONObject("result");
             analyzeTweetsResultJSON(quotedResult,new Tweet(),tweets);//递归分析转推的推文
         }else {
             tweet.setTweet_type("OriginalTweet");
             tweets.add(tweet);
-            System.out.println(tweet);
         }
+        twitterDataDao.insertTweets(tweets);
     }
 }
