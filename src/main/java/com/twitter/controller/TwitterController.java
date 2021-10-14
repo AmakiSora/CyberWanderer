@@ -1,4 +1,4 @@
-package com.twitter;
+package com.twitter.controller;
 
 import com.twitter.service.TwitterTweetService;
 import com.twitter.service.TwitterUserService;
@@ -13,7 +13,7 @@ public class TwitterController {
     @Autowired
     private TwitterUserService twitterUserService;
     @Autowired
-    private TwitterTweetService twitterService;
+    private TwitterTweetService twitterTweetService;
 
     //http://localhost:4567/twitter/getUserDetail?toDB=false
     @PostMapping("/getUserDetail")
@@ -25,7 +25,7 @@ public class TwitterController {
     //http://localhost:4567/twitter/getUserTweets
     @PostMapping("/getUserTweets")//前端传JSON解析
     public String getUserTweets(@RequestBody String content){
-        twitterService.analyzeUserTweetsJSON(content);
+        twitterTweetService.analyzeUserTweetsJSON(content);
         return "text";
     }
     //http://localhost:4567/twitter/getUserTweetsLocal
@@ -33,20 +33,18 @@ public class TwitterController {
     public String getUserTweets() {//获取某用户推文
         //UserTweets?
         StringBuilder b = new BigStringUtils().get();
-        twitterService.analyzeUserTweetsJSON(b.toString());
+        twitterTweetService.analyzeUserTweetsJSON(b.toString());
         return "getUserTweets";
     }
     //http://localhost:4567/twitter/downloadImg?username=""
     @GetMapping("/downloadImg")//根据username下载对应用户的图片
     public String downloadImg(String username){
-        return twitterService.downloadImg(username);
+        return twitterTweetService.downloadImg(username);
     }
-    //http://localhost:4567/twitter/autoGetUserTweets?
-    @GetMapping("/autoGetUserTweets")
-    public String test(String username,String onceGetNum,Integer frequency){
-        //todo 实现自动化爬取推文
-//        twitterService.autoGetUserTweets();
-        return "111";
+    //http://localhost:4567/twitter/auto/GetUserTweets?username=
+    @GetMapping("/auto/GetUserTweets")
+    public String test(String username,Integer onceGetNum,Integer frequency){
+        return twitterTweetService.autoGetUserTweets(username,onceGetNum,frequency);
     }
 
 }

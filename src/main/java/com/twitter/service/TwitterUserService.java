@@ -11,8 +11,11 @@ import org.springframework.stereotype.Service;
 public class TwitterUserService {
     @Autowired
     TwitterDataDao twitterDataDao;
-    public String getUserIdByUsername(String username){//
+    public String getUserIdByUsername(String username){//查user_id 根据username
         return twitterDataDao.queryUserIdByUsername(username);
+    }
+    public String getRestIdByUsername(String username){//查rest_id 根据username
+        return twitterDataDao.queryRestIdByUsername(username);
     }
     public String analyzeUserInfoJSON(String a,boolean toDB){
         JSONObject Json = (JSONObject) JSON.parse(a);

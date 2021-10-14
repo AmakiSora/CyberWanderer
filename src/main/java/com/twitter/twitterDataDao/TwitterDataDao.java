@@ -15,4 +15,5 @@ public interface TwitterDataDao {
     void insertTweets(List<Tweet> tweets);
     List<String> queryImgUrlsByUsername(String username);
     String queryUserIdByUsername(String username);
+    String queryRestIdByUsername(String username);
 }

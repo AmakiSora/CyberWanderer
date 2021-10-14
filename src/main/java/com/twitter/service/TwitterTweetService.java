@@ -10,6 +10,7 @@ import com.utils.ImgDownloadUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.processing.SupportedOptions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,17 +21,17 @@ public class TwitterTweetService {
     private TwitterDataDao twitterDataDao;
     @Autowired
     private TwitterUserService twitterUserService;
-    public String analyzeUserTweetsJSON(String a){
+
+    public String analyzeUserTweetsJSON(String data) {
         System.out.println("开始解析推文JSON");
 //        JSONObject json = JSONObject.parseObject(a.toString());
         String cursor_bottom = "";
-        JSONObject json = (JSONObject) JSON.parse(a);
+        JSONObject json = (JSONObject) JSON.parse(data);
         JSONObject timelineJson = json.getJSONObject("data")
                 .getJSONObject("user")
                 .getJSONObject("result")
                 .getJSONObject("timeline")
-                .getJSONObject("timeline")
-                ;
+                .getJSONObject("timeline");
         List<JSONObject> instructionsList = (List<JSONObject>) timelineJson.get("instructions");
         List<Tweet> tweets = new ArrayList<>();//提取完成后的推文数组
         for (JSONObject d : instructionsList) {
@@ -45,7 +46,7 @@ public class TwitterTweetService {
                                 .getJSONObject("itemContent")
                                 .getJSONObject("tweet_results")
                                 .getJSONObject("result");
-                        analyzeTweetsResultJSON(result,tweet,tweets);
+                        analyzeTweetsResultJSON(result, tweet, tweets);
 
                     } else if (entryId.matches("^homeConversation-[0-9-a-zA-Z]*")) { //连续推文
 //                        System.out.println("连续推文");
@@ -57,18 +58,27 @@ public class TwitterTweetService {
 //                        System.out.println("光标顶部,暂时不处理");
                     } else if (entryId.matches("^cursor-bottom-[0-9-a-zA-Z]*")) { //光标底部
                         JSONObject content = (JSONObject) dd.get("content");
-                        cursor_bottom = content.getString("value");
+                        if (content.getBoolean("stopOnEmptyResponse")){//停止
+                            cursor_bottom = null;
+                        }else {
+                            cursor_bottom = content.getString("value");
+                        }
                     }
                 }
-            }else if ("TimelinePinEntry".equals(d.get("type"))){//置顶推文
+            } else if ("TimelinePinEntry".equals(d.get("type"))) {//置顶推文
 //                System.out.println("TimelinePinEntry,暂时不处理");
             }
         }
-        System.out.println("一共"+tweets.size()+"条推文");
+        System.out.println("一共" + tweets.size() + "条推文");
         twitterDataDao.insertTweets(tweets);
         return cursor_bottom;
     }
-    private void analyzeTweetsResultJSON(JSONObject result,Tweet tweet,List<Tweet> tweets){//用于分析推文里的Result
+
+    private void analyzeTweetsResultJSON(JSONObject result, Tweet tweet, List<Tweet> tweets) {//用于分析推文里的Result
+        if ("TweetUnavailable".equals(result.getString("__typename"))){//推文不可用
+            System.out.println("推文不可用");
+            return;
+        }
         String name = result.getJSONObject("core")
                 .getJSONObject("user_results")
                 .getJSONObject("result")
@@ -96,7 +106,7 @@ public class TwitterTweetService {
 
         JSONObject entities = legacy.getJSONObject("entities");
         List<JSONObject> hashtags_List = (List<JSONObject>) entities.get("hashtags");
-        if (hashtags_List != null && !hashtags_List.isEmpty()){ //有标签
+        if (hashtags_List != null && !hashtags_List.isEmpty()) { //有标签
             StringBuilder tag = new StringBuilder();
             for (JSONObject h : hashtags_List) {
                 tag.append("#").append(h.getString("text"));
@@ -105,7 +115,7 @@ public class TwitterTweetService {
         }
 
         List<JSONObject> media_List = (List<JSONObject>) entities.get("media");
-        if (media_List != null && !media_List.isEmpty()){
+        if (media_List != null && !media_List.isEmpty()) {
             StringBuilder media_urls = new StringBuilder();
             for (JSONObject m : media_List) {
                 media_urls.append("|").append(m.getString("media_url_https"));
@@ -114,7 +124,7 @@ public class TwitterTweetService {
         }
 
         List<JSONObject> urls_list = (List<JSONObject>) entities.get("urls");
-        if (urls_list != null && !urls_list.isEmpty()){
+        if (urls_list != null && !urls_list.isEmpty()) {
             StringBuilder urls = new StringBuilder();
             for (JSONObject m : urls_list) {
                 urls.append("|").append(m.getString("expanded_url"));
@@ -125,19 +135,20 @@ public class TwitterTweetService {
             tweet.setTweet_type("Retweeted");//推文类型!!!
             tweet.setQuoted_tweet_id(legacy.getString("quoted_status_id_str"));//转推id
             tweets.add(tweet);
-            try{ //todo 某些推文是转推，但是没有附带quoted_status_result这个转推信息，目前不知道为什么
+            try { //todo 某些推文是转推，但是没有附带quoted_status_result这个转推信息，目前不知道为什么
                 JSONObject quotedResult = result.getJSONObject("quoted_status_result").getJSONObject("result");
-                analyzeTweetsResultJSON(quotedResult,new Tweet(),tweets);//递归分析转推的推文
-            }catch (NullPointerException e){
-                System.out.println("推文id："+tweet.getTweet_id()+"是转推，但quoted_status_result为空");
+                analyzeTweetsResultJSON(quotedResult, new Tweet(), tweets);//递归分析转推的推文
+            } catch (NullPointerException e) {
+                System.out.println("推文id：" + tweet.getTweet_id() + "是转推，但quoted_status_result为空");
             }
-        }else {
+        } else {
             tweet.setTweet_type("OriginalTweet");
             tweets.add(tweet);
         }
     }
-    public String downloadImg(String username){
-        if (!username.isBlank()){
+
+    public String downloadImg(String username) {
+        if (!username.isBlank()) {
             List<String> list = twitterDataDao.queryImgUrlsByUsername(username);
             List<String> finalList = new ArrayList<>();
             for (String s : list) {
@@ -149,40 +160,56 @@ public class TwitterTweetService {
                     }
                 }
             }
-            new ImgDownloadUtils().processSync(finalList,username);
+            new ImgDownloadUtils().processSync(finalList, username);
         } else {//无输入username的情况
 //            twitterDataDao
         }
         return "成功";
     }
-    public String autoGetUserTweets(String username,String onceGetNum,Integer frequency){
+
+    public String autoGetUserTweets(String username, Integer onceGetNum, Integer frequency) {
+        String rest_id = twitterDataDao.queryRestIdByUsername(username);
         ConnectionUtils connectionUtils = new ConnectionUtils();
         HashMap<String, String> map = new HashMap<>();
         //鉴权头部信息
-        map.put("x-guest-token","1448187382679801856");
-        map.put("Authorization","Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA");
+        map.put("x-guest-token", "1448547813902614530");
+        map.put("Authorization", "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA");
         String FixedURL = "https://twitter.com/i/api/graphql/p68c7OTFDZVMpkCA1-x3rg/UserTweets?variables=";
-        String userId = "%7B%22userId%22%3A%22"+"2859339990"+"%22%2C";//userId
-        String count = "%22count%22%3A"+onceGetNum+"%2C";//推文数，上限599(手动测的)
-        String start = "%22cursor%22%3A%22HBaKwKPxveuzlSgAAA%3D%3D%22%2C";//推文起始位置
+        String userId = "%7B%22userId%22%3A%22" + rest_id + "%22%2C";//rest_id
+        String count = "%22count%22%3A" + onceGetNum.toString() + "%2C";//推文数，上限599(手动测的)
         String other =
                 "%22withTweetQuoteCount%22%3Atrue%2C" + //推文引用计数
-                "%22includePromotedContent%22%3Atrue%2C" + //包括推广内容
-                "%22withSuperFollowsUserFields%22%3Afalse%2C" + //超级关注用户字段
-                "%22withUserResults%22%3Atrue%2C" + //带有用户信息
-                "%22withBirdwatchPivots%22%3Afalse%2C" + //
-                "%22withReactionsMetadata%22%3Afalse%2C" + //带有反应元数据
-                "%22withReactionsPerspective%22%3Afalse%2C" + //反应视角
-                "%22withSuperFollowsTweetFields%22%3Afalse%2C" + //使用超级关注推文字段
-                "%22withVoice%22%3Atrue%7D";//带语音
-        String url = "";
-        try {
-            String json = connectionUtils.getJsonFromApiByHeader(url, map);
-                analyzeUserTweetsJSON(json);
-            } catch (Exception e) {
-            e.printStackTrace();
-        }
+                        "%22includePromotedContent%22%3Atrue%2C" + //包括推广内容
+                        "%22withSuperFollowsUserFields%22%3Afalse%2C" + //超级关注用户字段
+                        "%22withUserResults%22%3Atrue%2C" + //带有用户信息
+                        "%22withBirdwatchPivots%22%3Afalse%2C" + //
+                        "%22withReactionsMetadata%22%3Afalse%2C" + //带有反应元数据
+                        "%22withReactionsPerspective%22%3Afalse%2C" + //反应视角
+                        "%22withSuperFollowsTweetFields%22%3Afalse%2C" + //使用超级关注推文字段
+                        "%22withVoice%22%3Atrue%7D";//带语音
+        String url = FixedURL + userId + count + other;
+        String data = null;
+        String botten_id = null;
+        String start = null;
+        if (frequency == -1){//一直获取
 
-        return "";
+        }
+        while (frequency!=0){
+            try {
+                System.out.println("请求地址："+url);
+                data = connectionUtils.getJsonFromApiByHeader(url, map);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            botten_id = analyzeUserTweetsJSON(data);
+            if (botten_id == null){
+                break;
+            }
+            start = "%22cursor%22%3A%22"+ botten_id +"%3D%3D%22%2C";//推文起始位置
+            url = FixedURL + userId + count + start + other;
+            System.out.println("botten_id:"+botten_id);
+            frequency--;
+        }
+        return "完成";
     }
 }
