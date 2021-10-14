@@ -1,64 +1,30 @@
-package com.twitter;
+package com.twitter.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.twitter.pojo.Tweet;
 import com.twitter.pojo.TwitterUser;
 import com.twitter.twitterDataDao.TwitterDataDao;
+import com.utils.ConnectionUtils;
+import com.utils.ImgDownloadUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
-public class TwitterService {
+public class TwitterTweetService {
     @Autowired
     private TwitterDataDao twitterDataDao;
-    public String analyzeUserDetailJSON(String a){
-        JSONObject Json = (JSONObject) JSON.parse(a);
-        JSONObject userJson = (JSONObject) Json.getJSONObject("data").get("user");
-        JSONObject resultJson = userJson.getJSONObject("result");
-        JSONObject legacy_extended_profileJson = resultJson.getJSONObject("legacy_extended_profile");
-        JSONObject legacyJson = resultJson.getJSONObject("legacy");
-        JSONObject birthdateJson = legacy_extended_profileJson.getJSONObject("birthdate");
-
-        TwitterUser user = new TwitterUser();
-
-        try {//生日有可能为空
-            String birthdate = birthdateJson.getString("year")+"-"+
-                birthdateJson.getString("month")+"-"+
-                birthdateJson.getString("day");
-            //生日
-            user.setBirthday(birthdate);
-
-        }catch (Exception e){
-            System.out.println(legacyJson.getString("name")+"未填写生日!!");
-        }
-        //名称
-        user.setName(legacyJson.getString("name"));
-        //唯一用户名
-        user.setUsername(legacyJson.getString("screen_name"));
-        //唯一id
-        user.setUser_id(resultJson.getString("id"));
-        //帐号创建时间
-        user.setCreated_at(legacyJson.getString("created_at"));
-        //简介
-        user.setDescription(legacyJson.getString("description"));
-        //展示链接
-        user.setDisplay_url(legacyJson.getString("url"));
-        //地点
-        user.setLocation(legacyJson.getString("location"));
-        //关注者
-        user.setFollowers_count(legacyJson.getInteger("followers_count"));
-        //正在关注
-        user.setFriends_count(legacyJson.getInteger("friends_count"));
-
-        twitterDataDao.insertTwitterUser(user);
-        return "";
-    }
-    public String analyzeUserTweetsJSON(StringBuilder a){
-        JSONObject json = JSONObject.parseObject(a.toString());
+    @Autowired
+    private TwitterUserService twitterUserService;
+    public String analyzeUserTweetsJSON(String a){
+        System.out.println("开始解析推文JSON");
+//        JSONObject json = JSONObject.parseObject(a.toString());
+        String cursor_bottom = "";
+        JSONObject json = (JSONObject) JSON.parse(a);
         JSONObject timelineJson = json.getJSONObject("data")
                 .getJSONObject("user")
                 .getJSONObject("result")
@@ -90,14 +56,17 @@ public class TwitterService {
                     } else if (entryId.matches("^cursor-top-[0-9-a-zA-Z]*")) { //光标顶部
 //                        System.out.println("光标顶部,暂时不处理");
                     } else if (entryId.matches("^cursor-bottom-[0-9-a-zA-Z]*")) { //光标底部
-//                        System.out.println("光标底部,暂时不处理");
+                        JSONObject content = (JSONObject) dd.get("content");
+                        cursor_bottom = content.getString("value");
                     }
                 }
             }else if ("TimelinePinEntry".equals(d.get("type"))){//置顶推文
 //                System.out.println("TimelinePinEntry,暂时不处理");
             }
         }
-        return "";
+        System.out.println("一共"+tweets.size()+"条推文");
+        twitterDataDao.insertTweets(tweets);
+        return cursor_bottom;
     }
     private void analyzeTweetsResultJSON(JSONObject result,Tweet tweet,List<Tweet> tweets){//用于分析推文里的Result
         String name = result.getJSONObject("core")
@@ -156,12 +125,64 @@ public class TwitterService {
             tweet.setTweet_type("Retweeted");//推文类型!!!
             tweet.setQuoted_tweet_id(legacy.getString("quoted_status_id_str"));//转推id
             tweets.add(tweet);
-            JSONObject quotedResult = result.getJSONObject("quoted_status_result").getJSONObject("result");
-            analyzeTweetsResultJSON(quotedResult,new Tweet(),tweets);//递归分析转推的推文
+            try{ //todo 某些推文是转推，但是没有附带quoted_status_result这个转推信息，目前不知道为什么
+                JSONObject quotedResult = result.getJSONObject("quoted_status_result").getJSONObject("result");
+                analyzeTweetsResultJSON(quotedResult,new Tweet(),tweets);//递归分析转推的推文
+            }catch (NullPointerException e){
+                System.out.println("推文id："+tweet.getTweet_id()+"是转推，但quoted_status_result为空");
+            }
         }else {
             tweet.setTweet_type("OriginalTweet");
             tweets.add(tweet);
         }
-        twitterDataDao.insertTweets(tweets);
+    }
+    public String downloadImg(String username){
+        if (!username.isBlank()){
+            List<String> list = twitterDataDao.queryImgUrlsByUsername(username);
+            List<String> finalList = new ArrayList<>();
+            for (String s : list) {
+                if (s != null && !s.isBlank()) {
+                    String[] split = s.split("\\|");
+                    for (String sp : split) {
+                        if (!sp.isBlank())
+                            finalList.add(sp);
+                    }
+                }
+            }
+            new ImgDownloadUtils().processSync(finalList,username);
+        } else {//无输入username的情况
+//            twitterDataDao
+        }
+        return "成功";
+    }
+    public String autoGetUserTweets(String username,String onceGetNum,Integer frequency){
+        ConnectionUtils connectionUtils = new ConnectionUtils();
+        HashMap<String, String> map = new HashMap<>();
+        //鉴权头部信息
+        map.put("x-guest-token","1448187382679801856");
+        map.put("Authorization","Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA");
+        String FixedURL = "https://twitter.com/i/api/graphql/p68c7OTFDZVMpkCA1-x3rg/UserTweets?variables=";
+        String userId = "%7B%22userId%22%3A%22"+"2859339990"+"%22%2C";//userId
+        String count = "%22count%22%3A"+onceGetNum+"%2C";//推文数，上限599(手动测的)
+        String start = "%22cursor%22%3A%22HBaKwKPxveuzlSgAAA%3D%3D%22%2C";//推文起始位置
+        String other =
+                "%22withTweetQuoteCount%22%3Atrue%2C" + //推文引用计数
+                "%22includePromotedContent%22%3Atrue%2C" + //包括推广内容
+                "%22withSuperFollowsUserFields%22%3Afalse%2C" + //超级关注用户字段
+                "%22withUserResults%22%3Atrue%2C" + //带有用户信息
+                "%22withBirdwatchPivots%22%3Afalse%2C" + //
+                "%22withReactionsMetadata%22%3Afalse%2C" + //带有反应元数据
+                "%22withReactionsPerspective%22%3Afalse%2C" + //反应视角
+                "%22withSuperFollowsTweetFields%22%3Afalse%2C" + //使用超级关注推文字段
+                "%22withVoice%22%3Atrue%7D";//带语音
+        String url = "";
+        try {
+            String json = connectionUtils.getJsonFromApiByHeader(url, map);
+                analyzeUserTweetsJSON(json);
+            } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "";
     }
 }

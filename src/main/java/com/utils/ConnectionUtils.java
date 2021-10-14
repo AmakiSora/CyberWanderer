@@ -46,7 +46,7 @@ public class ConnectionUtils {
                 }
 
                 result = sbf.toString();
-                System.out.println(sbf);
+//                System.out.println(sbf);
             } else {
                 System.out.println("link fault");
             }
@@ -91,7 +91,7 @@ public class ConnectionUtils {
                 }
 
                 dataJSONP = sbf.toString();
-                System.out.println(sbf);
+//                System.out.println(sbf);
             } else {
                 System.out.println("link fault");
             }
@@ -119,7 +119,7 @@ public class ConnectionUtils {
                 }
 
                 result = sbf.toString();
-                System.out.println(sbf);
+//                System.out.println(sbf);
             } else {
                 System.out.println("link fault");
             }
@@ -153,7 +153,7 @@ public class ConnectionUtils {
                 }
 
                 result = sbf.toString();
-                System.out.println(sbf);
+//                System.out.println(sbf);
             } else {
                 System.out.println("link fault");
             }
@@ -204,7 +204,7 @@ public class ConnectionUtils {
                 }
 
                 result = sbf.toString();
-                System.out.println(sbf);
+//                System.out.println(sbf);
             } else {
                 System.out.println("link fault");
             }

@@ -75,7 +75,7 @@ public class ImgDownloadUtils {
         while ((len = inputStream.read(bs)) != -1) {
             os.write(bs, 0, len);
         }
-        System.out.println("picUrl: " + url);
+        System.out.println("Url: " + url);
         System.out.println(String.format("正在下载第%s张图片", suc.getAndIncrement()));
     }
 
@@ -128,8 +128,7 @@ public class ImgDownloadUtils {
                 // 超时的时候向线程池中所有的线程发出中断(interrupted)。
                 // executorService.shutdownNow();
             }
-            System.out.println("AwaitTermination Finished");
-            System.out.println("共有URL: "+data.size());
+            System.out.println("下载完成，共有URL: "+data.size());
             System.out.println("下载成功: " + suc);
             System.out.println("下载失败: " + fails);
 
