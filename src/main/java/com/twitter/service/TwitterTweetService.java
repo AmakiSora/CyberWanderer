@@ -58,11 +58,12 @@ public class TwitterTweetService {
 //                        System.out.println("光标顶部,暂时不处理");
                     } else if (entryId.matches("^cursor-bottom-[0-9-a-zA-Z]*")) { //光标底部
                         JSONObject content = (JSONObject) dd.get("content");
-                        if (content.getBoolean("stopOnEmptyResponse")){//停止
-                            cursor_bottom = null;
-                        }else {
+//                        if (content.getBoolean("stopOnEmptyResponse")){//停止
+//                            System.out.println("stopOnEmptyResponse");
+//                            cursor_bottom = null;
+//                        }else {
                             cursor_bottom = content.getString("value");
-                        }
+//                        }
                     }
                 }
             } else if ("TimelinePinEntry".equals(d.get("type"))) {//置顶推文
@@ -167,12 +168,12 @@ public class TwitterTweetService {
         return "成功";
     }
 
-    public String autoGetUserTweets(String username, Integer onceGetNum, Integer frequency) {
+    public String autoGetUserTweets(String token,String username, Integer onceGetNum, Integer frequency) {
         String rest_id = twitterDataDao.queryRestIdByUsername(username);
         ConnectionUtils connectionUtils = new ConnectionUtils();
         HashMap<String, String> map = new HashMap<>();
         //鉴权头部信息
-        map.put("x-guest-token", "1448547813902614530");
+        map.put("x-guest-token", token);
         map.put("Authorization", "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA");
         String FixedURL = "https://twitter.com/i/api/graphql/p68c7OTFDZVMpkCA1-x3rg/UserTweets?variables=";
         String userId = "%7B%22userId%22%3A%22" + rest_id + "%22%2C";//rest_id

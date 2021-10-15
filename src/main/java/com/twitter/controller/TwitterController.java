@@ -43,8 +43,13 @@ public class TwitterController {
     }
     //http://localhost:4567/twitter/auto/GetUserTweets?username=
     @GetMapping("/auto/GetUserTweets")
-    public String test(String username,Integer onceGetNum,Integer frequency){
-        return twitterTweetService.autoGetUserTweets(username,onceGetNum,frequency);
+    public String autoGetUserTweets(String token,String username,Integer onceGetNum,Integer frequency){
+        return twitterTweetService.autoGetUserTweets(token,username,onceGetNum,frequency);
+    }
+    //http://localhost:4567/twitter/auto/GetUserDetail?username=
+    @GetMapping("/auto/GetUserDetail")
+    public String autoGetUserDetail(String token,String username,boolean toDB){
+        return twitterUserService.autoGetUserDetail(token,username,toDB);
     }
 
 }

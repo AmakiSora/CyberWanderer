@@ -15,7 +15,7 @@
         (#{name},#{username},#{user_id},#{created_at},#{full_text},#{tweet_id},#{tweet_media_urls},#{tweet_hashtags},#{tweet_urls},#{tweet_type},#{quoted_tweet_id},#{status})
     </insert>
     <insert id="insertTweets">
-        insert ignore into tweet
+        replace into tweet
         (name,username,user_id,created_at,full_text,tweet_id,tweet_media_urls,tweet_hashtags,tweet_urls,tweet_type,quoted_tweet_id,status)
         values
         <foreach collection="list" item="Tweet" separator=",">

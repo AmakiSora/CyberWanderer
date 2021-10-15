@@ -4,8 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.twitter.pojo.TwitterUser;
 import com.twitter.twitterDataDao.TwitterDataDao;
+import com.utils.ConnectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
 
 @Service
 public class TwitterUserService {
@@ -64,6 +67,25 @@ public class TwitterUserService {
             System.out.println(user);
         }
         return user.toString();
+    }
+    public String autoGetUserDetail(String token,String username,boolean toDB){
+        HashMap<String, String> map = new HashMap<>();
+        //鉴权头部信息
+        map.put("Host", "twitter.com");
+        map.put("x-guest-token", token);
+        map.put("Authorization", "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA");
+        String FixedURL = "https://twitter.com/i/api/graphql/cYsDlVss-qimNYmNlb6inw/UserByScreenName?variables=";
+        String p = "%7B%22screen_name%22%3A%22"+ username +"%22%2C" +
+                "%22withSafetyModeUserFields%22%3Atrue%2C" +
+                "%22withSuperFollowsUserFields%22%3Afalse%7D";
+        String url = FixedURL + p;
+        try {
+            String json = new ConnectionUtils().getJsonFromApiByHeader(url, map);
+            analyzeUserInfoJSON(json,toDB);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "成功";
     }
 
 }
