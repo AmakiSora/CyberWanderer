@@ -1,10 +1,14 @@
 package com.twitter.controller;
 
+import com.twitter.pojo.TweetJSON;
 import com.twitter.service.TwitterTweetService;
 import com.twitter.service.TwitterUserService;
+import com.twitter.twitterDataDao.TwitterMongoDao;
 import com.utils.BigStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/twitter")
@@ -50,6 +54,15 @@ public class TwitterController {
     @GetMapping("/auto/GetUserDetail")
     public String autoGetUserDetail(String token,String username,boolean toDB){
         return twitterUserService.autoGetUserDetail(token,username,toDB);
+    }
+    //http://localhost:4567/twitter/mongodb/test
+    @Autowired
+    TwitterMongoDao twitterMongoDao;
+    @GetMapping("/mongodb/test")//mongo测试
+    public String mon(){
+        List<TweetJSON> all = twitterMongoDao.findAll();
+        System.out.println(all);
+        return "";
     }
 
 }

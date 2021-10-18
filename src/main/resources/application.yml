@@ -18,6 +18,13 @@ spring:
       password: ENC(iQPuaIDwqSmptaN8Uj600zt1c5MWcuBylWDJUODsXQQ=)
       driver-class-name: com.mysql.cj.jdbc.Driver
       url: jdbc:mysql://47.103.220.45:3306/twitterdata?useUnicode=true&charaterEncoding=UTF-8&serverTimezone=UTC
+  data:
+    mongodb:
+      host: 47.103.220.45
+      port: 27017
+      database: cyber
+      username: cyberwanderer
+      password: ENC(QJHOprkX5lTgvhO2heGM5a534rVaphVq)
 #mybatis xml位置
 mybatis:
   mapper-locations: classpath:mapper/*.xml
