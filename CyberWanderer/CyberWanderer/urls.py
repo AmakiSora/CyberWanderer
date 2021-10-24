@@ -15,9 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import page_hello
+from .views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('hello/', page_hello)
+    path('hello/', page_hello),
+    path('c/', connection)
+    # path('test/<str:username>', page_test), #匹配string
+    # path('test/<int:num>',page_test),  # 匹配int
+    # path('test/<path:ph>', page_test),#匹配带/的string
+    # path('test/<slug:sl>', page_test),#匹配任意ASCII码的短标签
 ]
