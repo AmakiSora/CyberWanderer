@@ -83,9 +83,9 @@ WSGI_APPLICATION = 'CyberWanderer.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'twitterdata',
-        'USER': 'twitterData',
-        'PASSWORD': 'ZdSDmFE58f2MC4mB',
+        'NAME': 'cyber',
+        'USER': 'cyber',
+        'PASSWORD': 'haRnFLsZDMCkLfKT',
         'HOST': '47.103.220.45',
         'port': '3306'
 
