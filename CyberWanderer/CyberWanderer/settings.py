@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'twitter',  # 推特模块
 ]
 # 中间件
 MIDDLEWARE = [
@@ -81,8 +82,13 @@ WSGI_APPLICATION = 'CyberWanderer.wsgi.application'
 # 数据库配置
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'twitterdata',
+        'USER': 'twitterData',
+        'PASSWORD': 'ZdSDmFE58f2MC4mB',
+        'HOST': '47.103.220.45',
+        'port': '3306'
+
     }
 }
 
