@@ -20,7 +20,7 @@ class Tweet(models.Model):
 
 
 # 推特用户信息
-class TwitterUsers(models.Model):
+class TwitterUser(models.Model):
     name = models.CharField('昵称', max_length=1023, default='')
     username = models.CharField('用户名', max_length=255, default='')
     rest_id = models.CharField('rest_id', max_length=255, default='')
