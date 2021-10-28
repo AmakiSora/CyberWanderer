@@ -39,7 +39,7 @@ def getTweets(user_id, count, cursor=''):
     return None
 
 
-# 自动化
+# 自动化,最多获取850条数据
 def autoGetUserTweets(user_id, count=20, to_db=True, frequency=1):
     tweets_json = getTweets(user_id, count)
     if tweets_json is None:
@@ -48,6 +48,8 @@ def autoGetUserTweets(user_id, count=20, to_db=True, frequency=1):
     if frequency > 1:
         for i in range(frequency):
             tweets_json = getTweets(user_id, count, cursor_bottom)
+            if cursor_bottom is None:
+                return tweets_json
             cursor_bottom = analyzeUserTweets(tweets_json, to_db)
 
     return tweets_json
@@ -57,16 +59,20 @@ def autoGetUserTweets(user_id, count=20, to_db=True, frequency=1):
 def analyzeUserTweets(tweets_json, to_db):
     # j = open('D:\cosmos\OneDrive/twitter/json.txt', 'r', encoding="utf-8")
     # o = json.loads(j.read())
+    global cursor_bottom
     instructions = tweets_json['data']['user']['result']['timeline']['timeline']['instructions']
     for i in instructions:
         if i['type'] == 'TimelineAddEntries':  # 推文列
+            tweetNum = 0  # 记录推文数,也是终止标签,如果无后续推文,直接终止循环
+            tweets = []
             for e in i.get('entries'):
                 entryId = e.get('entryId')
-                print('entryId = ', entryId)
+                # print('entryId = ', entryId)
                 if re.match("^tweet-[0-9]*", entryId):  # 确认为用户推文
+                    tweetNum += 1
                     tweet = Tweet()
                     result = e['content']['itemContent']['tweet_results']['result']
-                    analyzeTweetsResultJSON(result, tweet, to_db)
+                    analyzeTweetsResultJSON(result, tweet, tweets, to_db)
                 elif re.match("^homeConversation-[0-9-a-zA-Z]*", entryId):  # 连续推文
                     pass
                     # print("连续推文")
@@ -81,6 +87,11 @@ def analyzeUserTweets(tweets_json, to_db):
                     # print("光标顶部,暂时不处理")
                 elif re.match("^cursor-bottom-[0-9-a-zA-Z]*", entryId):  # 光标底部
                     cursor_bottom = e['content'].get('value')
+            print(tweets)
+            print('本次请求一共', tweetNum, "条推文!")
+            Tweet.objects.bulk_create(tweets, ignore_conflicts=True)  # 批量存入数据库(忽略重复id)
+            if tweetNum == 0:  # 表示后面没有推文了
+                return None
         elif i['type'] == 'TimelinePinEntry':  # 置顶推文
             pass
             # print("置顶推文,暂时不处理")
@@ -88,7 +99,7 @@ def analyzeUserTweets(tweets_json, to_db):
 
 
 # 分析推文具体信息
-def analyzeTweetsResultJSON(result, tweet, to_db):
+def analyzeTweetsResultJSON(result, tweet, tweets, to_db):
     if result['__typename'] == 'TweetUnavailable':
         print('推文不可用')
         return
@@ -123,17 +134,22 @@ def analyzeTweetsResultJSON(result, tweet, to_db):
         tweet.tweet_type = 'Retweeted'  # 推文类型!!!
         tweet.quoted_tweet_id = result['legacy'].get('quoted_status_id_str')  # 转推id
         if to_db:
-            tweet.save()  # 保存至数据库
+            tweets.append(tweet)
+            # tweet.save()  # 保存至数据库
         else:
             print(tweet)
         # 某些推文是转推，但是没有附带quoted_status_result这个转推信息，目前不知道为什么
-        quoted_result = result.get('quoted_status_result').get('result')
-        if quoted_result is not None:
-            quoted_tweet = Tweet()
-            analyzeTweetsResultJSON(quoted_result, quoted_tweet, to_db)
+        quoted_status_result = result.get('quoted_status_result', None)
+        if quoted_status_result is not None:
+            quoted_result = quoted_status_result.get('result', None)
+            if quoted_result is not None:
+                quoted_tweet = Tweet()
+                analyzeTweetsResultJSON(quoted_result, quoted_tweet, tweets, to_db)
+
     else:  # 不是转推
         tweet.tweet_type = 'OriginalTweet'  # 推文类型!!!
         if to_db:
-            tweet.save()  # 保存至数据库
+            tweets.append(tweet)
+            # tweet.save()  # 保存至数据库
         else:
             print(tweet)

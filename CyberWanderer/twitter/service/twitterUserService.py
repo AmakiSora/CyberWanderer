@@ -10,7 +10,10 @@ from .twitterRequestService import *
 
 # 根据username获取rest_id
 def getRestIdByUsername(username):
-    rest_id = TwitterUser.objects.get(username=username).rest_id
+    try:
+        rest_id = TwitterUser.objects.get(username=username).rest_id
+    except:
+        return None
     return rest_id
 
 
