@@ -4,14 +4,14 @@ import re
 import requests
 
 from twitter.models import Tweet
-from twitter.service.twitterRequestService import get_token, headers
+from twitter.service.twitterRequestService import get_token, headers, get_headers
 
 '''
     推特推文服务
 '''
 
 
-def getTweets(user_id, count):
+def getTweets(user_id, count, cursor=''):
     u = 'https://twitter.com/i/api/graphql/9R7ABsb6gQzKjl5lctcnxA/UserTweets'
     variables = {
         "userId": user_id,
@@ -27,21 +27,29 @@ def getTweets(user_id, count):
         "withSuperFollowsTweetFields": False,
         "withVoice": True
     }
+    if cursor != '':
+        variables['cursor'] = cursor
+
     params = {
         'variables': json.dumps(variables, sort_keys=True, indent=4, separators=(',', ':'))
     }
-    tweets_json = requests.post(u, params, headers=headers)
+    tweets_json = requests.post(u, params, headers=get_headers())
     if tweets_json.status_code == 200:
         return json.loads(tweets_json.text)
     return None
 
 
 # 自动化
-def autoGetUserTweets(user_id, count, to_db):
+def autoGetUserTweets(user_id, count=20, to_db=True, frequency=1):
     tweets_json = getTweets(user_id, count)
     if tweets_json is None:
         return '错误！'
-    analyzeUserTweets(tweets_json, to_db)
+    cursor_bottom = analyzeUserTweets(tweets_json, to_db)
+    if frequency > 1:
+        for i in range(frequency):
+            tweets_json = getTweets(user_id, count, cursor_bottom)
+            cursor_bottom = analyzeUserTweets(tweets_json, to_db)
+
     return tweets_json
 
 
@@ -76,6 +84,7 @@ def analyzeUserTweets(tweets_json, to_db):
         elif i['type'] == 'TimelinePinEntry':  # 置顶推文
             pass
             # print("置顶推文,暂时不处理")
+    return cursor_bottom
 
 
 # 分析推文具体信息

@@ -33,6 +33,15 @@ def get_token():
     return token
 
 
+def get_headers():
+    if headers.get('x-guest-token') == '':
+        get_token()
+    return headers
+
+
 # 初始化时获取
-if headers.get('x-guest-token') == '':
-    get_token()
+try:
+    if headers.get('x-guest-token') == '':
+        get_token()
+except IOError:
+    print('未连接到推特!')
