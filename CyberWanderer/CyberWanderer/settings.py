@@ -87,7 +87,10 @@ DATABASES = {
         'USER': 'cyber',
         'PASSWORD': 'haRnFLsZDMCkLfKT',
         'HOST': '47.103.220.45',
-        'port': '3306'
+        'port': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
 
     }
 }

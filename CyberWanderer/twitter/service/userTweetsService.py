@@ -7,12 +7,13 @@ from twitter.models import Tweet
 from twitter.service.twitterRequestService import get_token, headers, get_headers
 
 '''
-    推特推文服务
+    用户推特推文服务
+    限制,只能搜最近850条
 '''
 
 
 def getTweets(user_id, count, cursor=''):
-    u = 'https://twitter.com/i/api/graphql/9R7ABsb6gQzKjl5lctcnxA/UserTweets'
+    url = 'https://twitter.com/i/api/graphql/9R7ABsb6gQzKjl5lctcnxA/UserTweets'
     variables = {
         "userId": user_id,
         "count": count,
@@ -33,30 +34,30 @@ def getTweets(user_id, count, cursor=''):
     params = {
         'variables': json.dumps(variables, sort_keys=True, indent=4, separators=(',', ':'))
     }
-    tweets_json = requests.post(u, params, headers=get_headers())
+    tweets_json = requests.post(url, params, headers=get_headers())
     if tweets_json.status_code == 200:
         return json.loads(tweets_json.text)
     return None
 
 
 # 自动化,最多获取850条数据
-def autoGetUserTweets(user_id, count=20, to_db=True, frequency=1):
+def autoGetUserTweets(user_id, count=20, to_db=True, frequency=1, updateTweet=False):
     tweets_json = getTweets(user_id, count)
     if tweets_json is None:
         return '错误！'
-    cursor_bottom = analyzeUserTweets(tweets_json, to_db)
+    cursor_bottom = analyzeUserTweets(tweets_json, to_db, updateTweet)
     if frequency > 1:
         for i in range(frequency):
             tweets_json = getTweets(user_id, count, cursor_bottom)
             if cursor_bottom is None:
                 return tweets_json
-            cursor_bottom = analyzeUserTweets(tweets_json, to_db)
+            cursor_bottom = analyzeUserTweets(tweets_json, to_db, updateTweet)
 
     return tweets_json
 
 
 # 分析用户推文
-def analyzeUserTweets(tweets_json, to_db):
+def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
     # j = open('D:\cosmos\OneDrive/twitter/json.txt', 'r', encoding="utf-8")
     # o = json.loads(j.read())
     global cursor_bottom
@@ -89,7 +90,9 @@ def analyzeUserTweets(tweets_json, to_db):
                     cursor_bottom = e['content'].get('value')
             print(tweets)
             print('本次请求一共', tweetNum, "条推文!")
-            Tweet.objects.bulk_create(tweets, ignore_conflicts=True)  # 批量存入数据库(忽略重复id)
+            Tweet.objects.bulk_create(tweets, ignore_conflicts=True)  # 批量存入数据库(忽略重复id,即不会更新数据)
+            if updateTweet:
+                Tweet.objects.bulk_update(tweets, ['name', 'full_text'])  # 批量更新,(一般没什么用,因为推特禁止编辑推文)
             if tweetNum == 0:  # 表示后面没有推文了
                 return None
         elif i['type'] == 'TimelinePinEntry':  # 置顶推文
@@ -99,7 +102,7 @@ def analyzeUserTweets(tweets_json, to_db):
 
 
 # 分析推文具体信息
-def analyzeTweetsResultJSON(result, tweet, tweets, to_db):
+def analyzeTweetsResultJSON(result, tweet, tweets, to_db=True):
     if result['__typename'] == 'TweetUnavailable':
         print('推文不可用')
         return
