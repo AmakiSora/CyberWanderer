@@ -8,6 +8,7 @@ class Tweet(models.Model):
     username = models.CharField('用户名', max_length=255, default='')
     user_id = models.CharField('唯一ID', max_length=255, default='')
     created_at = models.CharField('创建时间', max_length=255, default='')
+    created_time = models.DateTimeField("时间", null=True)
     full_text = models.CharField('推文内容', max_length=2047, default='')
     tweet_id = models.CharField('推文ID', max_length=255, null=False, primary_key=True)
     tweet_media_urls = models.CharField('推文媒体地址', max_length=2047, default='')

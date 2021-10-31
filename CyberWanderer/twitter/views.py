@@ -1,7 +1,7 @@
 import json
 
 from django.http import HttpResponse
-from .service import twitterUserService, userTweetsService, twitterRequestService
+from .service import twitterUserService, userTweetsService, twitterRequestService, searchTweetsService
 
 
 def analyzeUserTweets(request):
@@ -45,13 +45,26 @@ def autoGetUserInfo(request):
         return HttpResponse('自动获取推特用户信息成功!')
 
 
+def autoGetUserSearchTweets(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        username = body.get('username')
+        if username is None:
+            return HttpResponse('请传入username参数!')
+        if username == '':
+            return HttpResponse('username不能为空!')
+        to_db = body.get('to_db', True)  # 是否入库
+        since = body.get('since')  # 起始时间
+        until = body.get('until')  # 截止时间
+        if since is None or until is None:
+            return HttpResponse('起始或截止不能为空!')
+        searchTweetsService.auto_get_user_search_tweets(username, since, until, to_db)
+        return HttpResponse('自动获取搜索推文信息成功!')
+
+
+def auto_get_user_search_tweets():
+    return HttpResponse("233")
+
+
 def changeToken(request):
     return HttpResponse(twitterRequestService.get_token())
-
-
-def test233(request):
-    print(request.body)
-    print(request.GET)
-    print(request.POST)
-    print(request.method)
-    return HttpResponse('2333')
