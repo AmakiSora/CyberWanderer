@@ -8,7 +8,7 @@ import json
 import requests
 
 from twitter.models import Tweet
-from twitter.service.twitterRequestService import get_headers
+from twitter.service.twitterRequestService import get_headers, get_token
 
 
 # 获取用户搜索推文()
@@ -58,25 +58,30 @@ def get_user_search_tweets(username, since, until, cursor=''):
 
 
 # 自动获取搜索内容推文
-def auto_get_user_search_tweets(username, since_all_str, until_all_str, to_db=True):
+def auto_get_user_search_tweets(username, since_all_str, until_all_str, to_db=True, intervalDays=30):
     since_all = datetime.datetime.strptime(since_all_str, '%Y-%m-%d')
     until_all = datetime.datetime.strptime(until_all_str, '%Y-%m-%d')
     dc = (until_all - since_all).days
     since = since_all
-    until = since + datetime.timedelta(days=30)
+    until = since + datetime.timedelta(days=intervalDays)
+    refreshToken = 0
     while dc > 0:
-        if dc > 30:
+        if dc > intervalDays:
             loopAnalysis(username, since.strftime('%Y-%m-%d'), until.strftime('%Y-%m-%d'))
-            print("执行分析区间:", since, '-', until, '剩余天数：', dc - 30)
+            print("执行分析区间:", since, '-', until, '剩余天数：', dc - intervalDays)
             since = until
-            until = since + datetime.timedelta(days=30)
+            until = since + datetime.timedelta(days=intervalDays)
             if (until_all - until).days < 0:
                 until = until_all
             dc = (until_all - since).days
         else:
             loopAnalysis(username, since.strftime('%Y-%m-%d'), until.strftime('%Y-%m-%d'))
-            print("执行分析区间:", since, '-', until, '剩余天数：', dc - 30)
-            dc = dc - 30
+            print("执行分析区间:", since, '-', until, '剩余天数：', dc - intervalDays)
+            dc = dc - intervalDays
+        refreshToken += 1
+        if refreshToken > 10:
+            refreshToken = 0
+            get_token()
 
 
 # 循环解析
@@ -103,7 +108,7 @@ def analyze_search_tweets(tweets_json, to_db=True):
         tweet.name = g_users[tweet.user_id].get('name')
         if g_tweets[i].get('is_quote_status'):
             tweet.tweet_type = 'Retweeted'  # 推文类型!!!
-            tweet.quoted_tweet_id = g_tweets[i].get('quoted_status_id_str')
+            tweet.quoted_tweet_id = g_tweets[i].get('quoted_status_id_str', '')
         else:
             tweet.tweet_type = 'OriginalTweet'  # 推文类型!!!
 
@@ -135,7 +140,6 @@ def analyze_search_tweets(tweets_json, to_db=True):
     if count == 0:
         return cursor_bottom
     instructions = tweets_json['timeline']['instructions']
-    print(instructions)
     for i in instructions:
         if i.get('addEntries') is not None:
             for j in i['addEntries'].get('entries'):

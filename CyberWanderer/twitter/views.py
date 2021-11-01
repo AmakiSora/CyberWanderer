@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.http import HttpResponse
@@ -58,8 +59,11 @@ def autoGetUserSearchTweets(request):
         until = body.get('until')  # 截止时间
         if since is None or until is None:
             return HttpResponse('起始或截止不能为空!')
-        searchTweetsService.auto_get_user_search_tweets(username, since, until, to_db)
-        return HttpResponse('自动获取搜索推文信息成功!')
+        intervalDays = body.get('intervalDays')  # 截止时间
+        starttime = datetime.datetime.now()
+        searchTweetsService.auto_get_user_search_tweets(username, since, until, to_db, intervalDays)
+        endtime = datetime.datetime.now()
+        return HttpResponse('自动获取搜索推文信息成功!耗时:', (endtime - starttime).seconds)
 
 
 def changeToken(request):
