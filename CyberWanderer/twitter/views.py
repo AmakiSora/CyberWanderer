@@ -62,9 +62,5 @@ def autoGetUserSearchTweets(request):
         return HttpResponse('自动获取搜索推文信息成功!')
 
 
-def auto_get_user_search_tweets():
-    return HttpResponse("233")
-
-
 def changeToken(request):
     return HttpResponse(twitterRequestService.get_token())

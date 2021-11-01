@@ -2,10 +2,12 @@
     搜索推特推文服务
     可搜到历史信息,理论上能收集全
 '''
+import datetime
 import json
 
 import requests
 
+from twitter.models import Tweet
 from twitter.service.twitterRequestService import get_headers
 
 
@@ -57,50 +59,76 @@ def get_user_search_tweets(username, since, until, cursor=''):
 
 # 自动获取搜索内容推文
 def auto_get_user_search_tweets(username, since_all_str, until_all_str, to_db=True):
-    # since_all = datetime.datetime.strptime(since_all_str, '%Y-%m-%d')
-    # until_all = datetime.datetime.strptime(until_all_str, '%Y-%m-%d')
-    # dc = (until_all - since_all).days
-    # print(dc)
-    # while dc > 0:
-    #     if (until_all - since_all).days > 30:
-    #         since = d2
-    #         print(since)
-    #         d2 = d2 - datetime.timedelta(days=30)
-    #         until = d2
-    #         print(until)
-    #         tweets_json = get_user_search_tweets(username, since, until, to_db)
-    #     else:
-    #         tweets_json = get_user_search_tweets(username, since, until, to_db)
-    a = get_user_search_tweets(username, since_all_str, until_all_str)
-    cursor = analyze_search_tweets(a)
+    since_all = datetime.datetime.strptime(since_all_str, '%Y-%m-%d')
+    until_all = datetime.datetime.strptime(until_all_str, '%Y-%m-%d')
+    dc = (until_all - since_all).days
+    since = since_all
+    until = since + datetime.timedelta(days=30)
+    while dc > 0:
+        if dc > 30:
+            loopAnalysis(username, since.strftime('%Y-%m-%d'), until.strftime('%Y-%m-%d'))
+            print("执行分析区间:", since, '-', until, '剩余天数：', dc - 30)
+            since = until
+            until = since + datetime.timedelta(days=30)
+            if (until_all - until).days < 0:
+                until = until_all
+            dc = (until_all - since).days
+        else:
+            loopAnalysis(username, since.strftime('%Y-%m-%d'), until.strftime('%Y-%m-%d'))
+            print("执行分析区间:", since, '-', until, '剩余天数：', dc - 30)
+            dc = dc - 30
+
+
+# 循环解析
+def loopAnalysis(username, since, until):
+    cursor = analyze_search_tweets(get_user_search_tweets(username, since, until))
     while cursor != '':
-        tweets_json = get_user_search_tweets(username, since_all_str, until_all_str, cursor=cursor)
+        tweets_json = get_user_search_tweets(username, since, until, cursor=cursor)
         cursor = analyze_search_tweets(tweets_json)
 
 
 # 分析搜索推文
 def analyze_search_tweets(tweets_json, to_db=True):
     g_tweets = tweets_json['globalObjects']['tweets']
+    g_users = tweets_json['globalObjects']['users']
     count = 0
     for i in g_tweets:
-        print(i)
-        print(g_tweets[i].get('created_at'))
-        print(g_tweets[i].get('full_text'))
-        print(g_tweets[i].get('user_id_str'))
-        print(g_tweets[i].get('is_quote_status'))
-        if g_tweets[i].get('is_quote_status') == True:
-            print(g_tweets[i].get('quoted_status_id_str'))
+        tweet = Tweet()
+        tweet.tweet_id = i
+        tweet.created_at = g_tweets[i].get('created_at')
+        tweet.created_time = datetime.datetime.strptime(tweet.created_at, '%a %b %d %H:%M:%S +0000 %Y')
+        tweet.full_text = g_tweets[i].get('full_text')
+        tweet.user_id = g_tweets[i].get('user_id_str')
+        tweet.username = g_users[tweet.user_id].get('screen_name')
+        tweet.name = g_users[tweet.user_id].get('name')
+        if g_tweets[i].get('is_quote_status'):
+            tweet.tweet_type = 'Retweeted'  # 推文类型!!!
+            tweet.quoted_tweet_id = g_tweets[i].get('quoted_status_id_str')
+        else:
+            tweet.tweet_type = 'OriginalTweet'  # 推文类型!!!
 
         entities = g_tweets[i]['entities']
-        user_mentions = entities.get('user_mentions')
-        print(user_mentions)
-        if user_mentions is not None and user_mentions != []:
-            for j in user_mentions:
-                print(j.get('screen_name'))
-                print(j.get('name'))
+        hashtags_list = entities.get('hashtags')
+        if hashtags_list is not None:  # 有标签
+            tag = ''
+            for h in hashtags_list:
+                tag = tag + '#' + h.get('text')
+            tweet.tweet_hashtags = tag  # 标签
 
-        print("----------------------------------------------")
+        media_list = entities.get('media')
+        if media_list is not None:
+            media_url = ''
+            for m in media_list:
+                media_url = media_url + '|' + m.get('media_url_https')
+            tweet.tweet_media_urls = media_url  # 推文图片地址
 
+        urls_list = entities.get('urls')
+        if urls_list is not None:
+            urls = ''
+            for u in urls_list:
+                urls = urls + '|' + u.get('expanded_url')
+            tweet.tweet_urls = urls  # 推文附加地址
+        tweet.save()  # 保存至数据库
         count += 1
     print('一共', count, '条推文')
     cursor_bottom = ''
@@ -120,6 +148,3 @@ def analyze_search_tweets(tweets_json, to_db=True):
                 return cursor_bottom
 
     return cursor_bottom
-
-
-# auto_get_user_search_tweets('Liyu0109', '2016-7-1', '2017-1-1')
