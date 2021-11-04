@@ -40,8 +40,8 @@ def get_headers():
 
 
 # 初始化时获取
-try:
-    if headers.get('x-guest-token') == '':
-        get_token()
-except IOError:
-    print('未连接到推特!')
+# try:
+#     if headers.get('x-guest-token') == '':
+#         get_token()
+# except IOError:
+#     print('未连接到推特!')

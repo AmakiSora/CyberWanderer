@@ -60,7 +60,7 @@ def autoGetUserTweets(user_id, count=20, to_db=True, frequency=1, updateTweet=Fa
 def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
     # j = open('D:\cosmos\OneDrive/twitter/json.txt', 'r', encoding="utf-8")
     # o = json.loads(j.read())
-    global cursor_bottom
+    cursor_bottom = None
     instructions = tweets_json['data']['user']['result']['timeline']['timeline']['instructions']
     for i in instructions:
         if i['type'] == 'TimelineAddEntries':  # 推文列
@@ -68,11 +68,12 @@ def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
             tweets = []
             for e in i.get('entries'):
                 entryId = e.get('entryId')
-                # print('entryId = ', entryId)
                 if re.match("^tweet-[0-9]*", entryId):  # 确认为用户推文
                     tweetNum += 1
                     tweet = Tweet()
-                    result = e['content']['itemContent']['tweet_results']['result']
+                    result = e['content']['itemContent']['tweet_results'].get('result')
+                    if result is None: # 有时候tweet_results为空，不知道为什么
+                        break
                     analyzeTweetsResultJSON(result, tweet, tweets, to_db)
                 elif re.match("^homeConversation-[0-9-a-zA-Z]*", entryId):  # 连续推文
                     pass

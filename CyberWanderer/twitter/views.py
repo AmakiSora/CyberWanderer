@@ -2,7 +2,12 @@ import datetime
 import json
 
 from django.http import HttpResponse
-from .service import twitterUserService, userTweetsService, twitterRequestService, searchTweetsService
+from .service import twitterUserService, userTweetsService, twitterRequestService, searchTweetsService, \
+    userImgDownloadService
+
+
+def changeToken(request):
+    return HttpResponse(twitterRequestService.get_token())
 
 
 def analyzeUserTweets(request):
@@ -66,5 +71,12 @@ def autoGetUserSearchTweets(request):
         return HttpResponse('自动获取搜索推文信息成功!耗时:', (endtime - starttime).seconds)
 
 
-def changeToken(request):
-    return HttpResponse(twitterRequestService.get_token())
+def autoGetUserImg(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        folder_name = body.get('folder_name', '')
+        filter_obj = body.get('tweets_param', None)
+        if filter_obj is None:
+            return HttpResponse("filter_obj不能为空！")
+        userImgDownloadService.auto_get_user_img(folder_name, **filter_obj)
+        return HttpResponse("?")
