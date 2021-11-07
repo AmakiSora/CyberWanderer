@@ -3,17 +3,20 @@ import json
 
 from django.http import HttpResponse
 from .service import twitterUserService, userTweetsService, twitterRequestService, searchTweetsService, \
-    userImgDownloadService
+    userImgDownloadService, showTweetsService
 
 
+# 更换token
 def changeToken(request):
     return HttpResponse(twitterRequestService.get_token())
 
 
+# 解析推文信息
 def analyzeUserTweets(request):
-    return HttpResponse()
+    return HttpResponse('暂时不开放此功能')
 
 
+# 自动获取推文
 def autoGetUserTweets(request):
     if request.method == 'POST':
         body = json.loads(request.body)
@@ -34,10 +37,12 @@ def autoGetUserTweets(request):
         return HttpResponse('自动获取用户推文成功!')
 
 
+# 解析推特用户信息
 def analyzeUserInfo(request):
-    return HttpResponse()
+    return HttpResponse('暂时不开放此功能')
 
 
+# 自动获取用户信息
 def autoGetUserInfo(request):
     if request.method == 'POST':
         body = json.loads(request.body)
@@ -51,6 +56,7 @@ def autoGetUserInfo(request):
         return HttpResponse('自动获取推特用户信息成功!')
 
 
+# 自动获取搜索推文
 def autoGetUserSearchTweets(request):
     if request.method == 'POST':
         body = json.loads(request.body)
@@ -71,6 +77,7 @@ def autoGetUserSearchTweets(request):
         return HttpResponse('自动获取搜索推文信息成功!耗时:', (endtime - starttime).seconds)
 
 
+# 自动获取图片
 def autoGetUserImg(request):
     if request.method == 'POST':
         body = json.loads(request.body)
@@ -80,3 +87,11 @@ def autoGetUserImg(request):
             return HttpResponse("filter_obj不能为空！")
         userImgDownloadService.auto_get_user_img(folder_name, **filter_obj)
         return HttpResponse("?")
+
+
+# 展示推文数据
+def showTweets(request):
+    print(request.GET.items())
+    params = {'username': request.GET.get('username')}
+    data = showTweetsService.show_user_tweets(**params)
+    return HttpResponse(data, content_type="application/json")
