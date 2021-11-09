@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-&nf0_lqn0x+of6@fbe#x&vs^o#+86=xtv55^fz@musej3cai0u
 DEBUG = True
 
 # 允许的请求头,没有以下参数不能通过
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -120,8 +120,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # 修改语言
 LANGUAGE_CODE = 'zh-hans'
 
-# 设置时区
-TIME_ZONE = 'Asia/shanghai'
+# 设置时区(Linux中必须是Asia/Shanghai,windows中无所谓)
+TIME_ZONE = 'Asia/Shanghai'
 
 # 国际化
 USE_I18N = True
