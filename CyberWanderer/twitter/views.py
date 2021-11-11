@@ -85,8 +85,7 @@ def autoGetUserImg(request):
         filter_obj = body.get('tweets_param', None)
         if filter_obj is None:
             return HttpResponse("filter_obj不能为空！")
-        userImgDownloadService.auto_get_user_img(folder_name, **filter_obj)
-        return HttpResponse("?")
+        return HttpResponse(userImgDownloadService.auto_get_user_img(folder_name, **filter_obj))
 
 
 # 展示推文数据
