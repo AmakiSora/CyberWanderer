@@ -141,3 +141,9 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 代理设置
+PROXIES = {
+    'http': 'http://' + "127.0.0.1:7890",
+    'https': 'https://' + "127.0.0.1:7890"
+}

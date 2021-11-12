@@ -7,6 +7,7 @@ import json
 
 import requests
 
+from CyberWanderer import settings
 from twitter.models import Tweet
 from twitter.service.twitterRequestService import get_headers, get_token
 
@@ -49,7 +50,7 @@ def get_user_search_tweets(username, since, until, cursor=''):
     q = '(from:' + username + ')until:' + until + ' since:' + since
     print(q)
     params['q'] = q
-    tweets_json = requests.get(url, params, headers=get_headers())
+    tweets_json = requests.get(url, params, headers=get_headers(), proxies=settings.PROXIES)
     if tweets_json.status_code == 200:
         return json.loads(tweets_json.text)
     else:

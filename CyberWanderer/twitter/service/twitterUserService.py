@@ -27,7 +27,7 @@ def getUserInfo(username):
     params = {
         'variables': json.dumps(variables, sort_keys=True, indent=4, separators=(',', ':'))
     }
-    info_json = requests.get(u, params, headers=get_headers())
+    info_json = requests.get(u, params, headers=get_headers(), proxies=settings.PROXIES)
     if info_json.status_code == 200:
         return json.loads(info_json.text)
     return None

@@ -6,6 +6,7 @@ import threading
 
 import requests
 
+from CyberWanderer import settings
 from twitter.models import TwitterUser, Tweet
 
 
@@ -28,7 +29,7 @@ def download_img(url, folder_name=''):
     file_name = url.split('/')[-1]
     if not os.path.isfile(folder_name + file_name):
         try:
-            r = requests.get(url)
+            r = requests.get(url, proxies=settings.PROXIES)
             if r.status_code == 200:
                 try:
                     open(folder_name + file_name, 'wb').write(r.content)

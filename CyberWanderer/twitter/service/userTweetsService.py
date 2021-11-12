@@ -3,6 +3,7 @@ import re
 
 import requests
 
+from CyberWanderer import settings
 from twitter.models import Tweet
 from twitter.service.twitterRequestService import get_token, headers, get_headers
 
@@ -34,7 +35,7 @@ def getTweets(user_id, count, cursor=''):
     params = {
         'variables': json.dumps(variables, sort_keys=True, indent=4, separators=(',', ':'))
     }
-    tweets_json = requests.post(url, params, headers=get_headers())
+    tweets_json = requests.post(url, params, headers=get_headers(), proxies=settings.PROXIES)
     if tweets_json.status_code == 200:
         return json.loads(tweets_json.text)
     return None

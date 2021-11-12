@@ -5,6 +5,8 @@ import json
 
 import requests
 
+from CyberWanderer import settings
+
 headers = {
     # "Host": "utils.com",
     # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0',
@@ -27,7 +29,7 @@ url_token = 'https://api.twitter.com/1.1/guest/activate.json'
 
 # 获取token
 def get_token():
-    token = json.loads(requests.post(url_token, headers=headers).text)['guest_token']
+    token = json.loads(requests.post(url_token, headers=headers, proxies=settings.PROXIES).text)['guest_token']
     print('guest—token：', token)
     headers['x-guest-token'] = token
     return token
@@ -37,7 +39,6 @@ def get_headers():
     if headers.get('x-guest-token') == '':
         get_token()
     return headers
-
 
 # 初始化时获取
 # try:
