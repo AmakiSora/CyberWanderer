@@ -32,8 +32,8 @@ def autoGetUserTweets(request):
         if rest_id is None:
             return HttpResponse('用户在数据库中不存在!')
         updateTweet = body.get('updateTweet', False)  # 是否更新
-        print(updateTweet)
         userTweetsService.autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
+        userTweetsService.updateTweetCount(username)
         return HttpResponse('自动获取用户推文成功!')
 
 
@@ -74,7 +74,9 @@ def autoGetUserSearchTweets(request):
         starttime = datetime.datetime.now()
         searchTweetsService.auto_get_user_search_tweets(username, since, until, to_db, intervalDays)
         endtime = datetime.datetime.now()
-        return HttpResponse('自动获取搜索推文信息成功!耗时:', (endtime - starttime).seconds)
+        userTweetsService.updateTweetCount(username)
+        time = (endtime - starttime).seconds
+        return HttpResponse('自动获取搜索推文信息成功!耗时:' + str(time) + "s")
 
 
 # 自动获取图片

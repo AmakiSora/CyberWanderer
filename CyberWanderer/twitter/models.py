@@ -33,3 +33,4 @@ class TwitterUser(models.Model):
     followers_count = models.IntegerField('关注者', default=-1)
     location = models.CharField('地点', max_length=255, default='')
     display_url = models.CharField('展示链接', max_length=255, default='')
+    tweet_count = models.IntegerField('推文数', default=0)

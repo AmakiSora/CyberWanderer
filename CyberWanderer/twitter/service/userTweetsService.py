@@ -1,10 +1,11 @@
+import datetime
 import json
 import re
 
 import requests
 
 from CyberWanderer import settings
-from twitter.models import Tweet
+from twitter.models import Tweet, TwitterUser
 from twitter.service.twitterRequestService import get_token, headers, get_headers
 
 '''
@@ -73,7 +74,7 @@ def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
                     tweetNum += 1
                     tweet = Tweet()
                     result = e['content']['itemContent']['tweet_results'].get('result')
-                    if result is None: # 有时候tweet_results为空，不知道为什么
+                    if result is None:  # 有时候tweet_results为空，不知道为什么
                         break
                     analyzeTweetsResultJSON(result, tweet, tweets, to_db)
                 elif re.match("^homeConversation-[0-9-a-zA-Z]*", entryId):  # 连续推文
@@ -114,6 +115,7 @@ def analyzeTweetsResultJSON(result, tweet, tweets, to_db=True):
     tweet.tweet_id = result['legacy']['id_str']  # 推文id
     tweet.full_text = result['legacy']['full_text']  # 推文内容
     tweet.created_at = result['legacy']['created_at']  # 创建时间
+    tweet.created_time = datetime.datetime.strptime(tweet.created_at, '%a %b %d %H:%M:%S +0000 %Y')
 
     hashtags_list = result['legacy']['entities'].get('hashtags')
     if hashtags_list is not None:  # 有标签
@@ -158,3 +160,10 @@ def analyzeTweetsResultJSON(result, tweet, tweets, to_db=True):
             # tweet.save()  # 保存至数据库
         else:
             print(tweet)
+
+
+# 更新推文数
+def updateTweetCount(username):
+    t = TwitterUser.objects.get(username=username)
+    t.tweet_count = Tweet.objects.filter(username=username).count()
+    t.save()
