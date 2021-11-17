@@ -4,7 +4,7 @@ from django.http import HttpResponse
 
 
 def page_hello(request):
-    html = '<h1>hello world!</h1>'
+    html = 'This is CyberWanderer V1.7.5'
     return HttpResponse(html)
 
 
