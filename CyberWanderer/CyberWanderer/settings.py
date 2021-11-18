@@ -82,17 +82,19 @@ WSGI_APPLICATION = 'CyberWanderer.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cyber',
-        'USER': 'cyber',
-        'PASSWORD': 'haRnFLsZDMCkLfKT',
-        'HOST': '47.103.220.45',
-        'port': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
+            'read_default_file': os.path.join(BASE_DIR, 'config.cnf'),
         },
-
     }
 }
+# 数据库配置从文件里取,下面是文件格式
+# [client]
+# database = xxx
+# user = xxx
+# password = xxx
+# host = x.x.x.x
+# port = 3306
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
