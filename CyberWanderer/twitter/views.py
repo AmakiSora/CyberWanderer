@@ -83,11 +83,10 @@ def autoGetUserSearchTweets(request):
 def autoGetUserImg(request):
     if request.method == 'POST':
         body = json.loads(request.body)
-        folder_name = body.get('folder_name', '')
         filter_obj = body.get('tweets_param', None)
         if filter_obj is None:
             return HttpResponse("filter_obj不能为空！")
-        return HttpResponse(userImgDownloadService.auto_get_user_img(folder_name, **filter_obj))
+        return HttpResponse(userImgDownloadService.auto_get_user_img(**filter_obj))
 
 
 # 展示推文数据

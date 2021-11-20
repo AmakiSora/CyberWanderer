@@ -11,10 +11,28 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from configparser import ConfigParser
+from qiniu import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR为项目的绝对路径
+from qiniu.services.storage import bucket
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# 引用外部配置文件
+parser = ConfigParser()
+
+# 配置文件路径
+if os.path.exists(os.path.join(BASE_DIR, 'config_local.conf')):
+    conf_path = os.path.join(BASE_DIR, 'config_local.conf')
+    print('加载本地环境配置')
+else:
+    conf_path = os.path.join(BASE_DIR, 'config_pro.conf')
+    print('加载线上环境配置')
+
+# 读取配置文件
+parser.read(conf_path)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -26,7 +44,7 @@ SECRET_KEY = 'django-insecure-&nf0_lqn0x+of6@fbe#x&vs^o#+86=xtv55^fz@musej3cai0u
 # 启动模式,
 #   true为调试模式,检测到代码改动,立即重启服务,有报错页面
 #   false为上线模式
-DEBUG = True
+DEBUG = parser.get('main', 'debug')
 
 # 允许的请求头,没有以下参数不能通过
 ALLOWED_HOSTS = ['*']
@@ -82,19 +100,16 @@ WSGI_APPLICATION = 'CyberWanderer.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
+        'NAME': parser.get('mysql', 'name'),
+        'USER': parser.get('mysql', 'user'),
+        'PASSWORD': parser.get('mysql', 'password'),
+        'HOST': parser.get('mysql', 'host'),
+        'port': parser.get('mysql', 'port'),
         'OPTIONS': {
             'charset': 'utf8mb4',
-            'read_default_file': os.path.join(BASE_DIR, 'config.cnf'),
         },
     }
 }
-# 数据库配置从文件里取,下面是文件格式
-# [client]
-# database = xxx
-# user = xxx
-# password = xxx
-# host = x.x.x.x
-# port = 3306
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -149,6 +164,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 代理设置
 PROXIES = {
-    'http': 'http://' + "127.0.0.1:7890",
-    'https': 'https://' + "127.0.0.1:7890"
+    'http': parser.get('proxies', 'http'),
+    'https': parser.get('proxies', 'https')
 }
+
+# 七牛云设置
+QN = Auth(parser.get('qiniu', 'AccessKey'), parser.get('qiniu', 'SecretKey'))
+
