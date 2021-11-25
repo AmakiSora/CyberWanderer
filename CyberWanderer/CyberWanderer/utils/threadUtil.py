@@ -44,6 +44,7 @@ def multithreading_list(arrayList, function, params=None):
     return 200, statusInfo
 
 
+# 循环处理数组
 def loopFunction(*loopFunctionParams):
     try:
         arrayList = loopFunctionParams[0]
@@ -62,23 +63,5 @@ def loopFunction(*loopFunctionParams):
             elif code == 'fail':
                 statusInfo['fail'] += 1
             data = arrayList.pop()
-
     except:
         return
-
-
-def test233(i, a, b):
-    print("jinru", i)
-    print('---------a', a)
-    print('---------b', b)
-    if i == '1':
-        print('exist')
-        return 'exist'
-    elif i == '2':
-        print('fail')
-        return 'fail'
-    else:
-        print(233)
-        return '233'
-
-# print(multithreading_list(['1', '2', '3', '4'], test233, (3, 6)))
