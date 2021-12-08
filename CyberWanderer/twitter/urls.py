@@ -20,7 +20,8 @@ urlpatterns = [
     path('autoGetUserImg', autoGetUserImg),
     # 展示推文数据
     path('showTweets', showTweets),
-
-    # path('',),
+    # 更新多用户推文
+    path('batchUpdateTweets', batchUpdateTweets)
+    #
     # path('',),
 ]

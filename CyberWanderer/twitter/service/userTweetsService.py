@@ -2,6 +2,7 @@ import datetime
 import json
 import re
 
+import jsonpath as jsonpath
 import requests
 
 from CyberWanderer import settings
@@ -57,14 +58,16 @@ def autoGetUserTweets(user_id, count=20, to_db=True, frequency=1, updateTweet=Fa
 
     return tweets_json
 
-
 # 分析用户推文
 def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
     # j = open('D:\cosmos\OneDrive/twitter/json.txt', 'r', encoding="utf-8")
     # o = json.loads(j.read())
     cursor_bottom = None
-    instructions = tweets_json['data']['user']['result']['timeline']['timeline']['instructions']
-    for i in instructions:
+    # instructions = tweets_json['data']['user']['result']['timeline']['timeline'].get('instructions', None)
+    instructions = jsonpath.jsonpath(tweets_json, "$.data.user.result.timeline.timeline.instructions")
+    if not instructions:
+        return None
+    for i in instructions[0]:
         if i['type'] == 'TimelineAddEntries':  # 推文列
             tweetNum = 0  # 记录推文数,也是终止标签,如果无后续推文,直接终止循环
             tweets = []

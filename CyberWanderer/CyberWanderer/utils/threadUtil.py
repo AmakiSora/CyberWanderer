@@ -5,7 +5,7 @@
 import threading
 
 """
-    多线程处理数组(数组arrayList,处理函数function,函数的参数params)
+    多线程处理数组(数组arrayList,处理函数function,函数的参数params,线程数)
     注意事项:
         1.处理函数的第一个参数一定要为数据,且函数的参数params里不传第一个参数,其他参数要按照顺序传元组(只有一个参数则不填)
         2.处理函数返回值只能有一个
@@ -19,23 +19,24 @@ import threading
 """
 
 
-def multithreading_list(arrayList, function, params=None):
+def multithreading_list(arrayList, function, params=None, thread_num=0):
     statusInfo = {'count': 0, 'exist': 0, 'fail': 0}
     count = len(arrayList)
     statusInfo['count'] = count
-    if count > 500:
-        threadNum = 30
-    elif count > 100:
-        threadNum = 10
-    elif count > 5:
-        threadNum = 3
-    elif count > 0:
-        threadNum = 1
-    else:
-        return 0, statusInfo
+    if thread_num == 0:
+        if count > 500:
+            thread_num = 30
+        elif count > 100:
+            thread_num = 10
+        elif count > 5:
+            thread_num = 3
+        elif count > 0:
+            thread_num = 1
+        else:
+            return 0, statusInfo
     threads = []
     loopFunctionParams = (arrayList, statusInfo, function, params)
-    for i in range(threadNum):
+    for i in range(thread_num):
         threads.append(threading.Thread(target=loopFunction, args=loopFunctionParams))
     for i in threads:
         i.start()

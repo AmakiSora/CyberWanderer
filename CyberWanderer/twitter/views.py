@@ -71,8 +71,13 @@ def autoGetUserSearchTweets(request):
         if since is None or until is None:
             return HttpResponse('起始或截止不能为空!')
         intervalDays = body.get('intervalDays')  # 截止时间
+        # multithreading = body.get('multithreading')  # 是否启用多线程
         starttime = datetime.datetime.now()
         searchTweetsService.auto_get_user_search_tweets(username, since, until, to_db, intervalDays)
+        # if multithreading is True:
+        #     searchTweetsService.auto_get_user_search_tweets_multithreading(username, since, until, to_db, intervalDays)
+        # else:
+        #     searchTweetsService.auto_get_user_search_tweets(username, since, until, to_db, intervalDays)
         endtime = datetime.datetime.now()
         userTweetsService.updateTweetCount(username)
         time = (endtime - starttime).seconds
@@ -95,3 +100,28 @@ def showTweets(request):
     params = {'username': request.GET.get('username')}
     data = showTweetsService.show_user_tweets(**params)
     return HttpResponse(data, content_type="application/json")
+
+
+# 更新多用户推文
+def batchUpdateTweets(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        usernameList = body.get('usernameList', None)
+        count = body.get('count', 200)  # 每次请求获取的推文数
+        to_db = body.get('to_db', True)  # 是否入库
+        updateTweet = body.get('updateTweet', False)  # 是否更新
+        frequency = body.get('frequency', 20)  # 循环次数
+        if usernameList is None:
+            return HttpResponse("名单列表不能为空！")
+        elif type(usernameList) is not list:
+            return HttpResponse("参数需要为列表！")
+        print(usernameList)
+        for username in usernameList:
+            rest_id = twitterUserService.getRestIdByUsername(username)
+            if rest_id is None:
+                print(username + '在数据库中不存在!')
+                continue
+            print("更新用户" + username + "的推文")
+            userTweetsService.autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
+            userTweetsService.updateTweetCount(username)
+        return HttpResponse("更新完成！")

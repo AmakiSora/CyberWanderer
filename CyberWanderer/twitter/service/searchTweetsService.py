@@ -99,7 +99,11 @@ def loopAnalysis(username, since, until):
 
 # 分析搜索推文
 def analyze_search_tweets(tweets_json, to_db=True):
-    g_tweets = tweets_json['globalObjects']['tweets']
+    if tweets_json is None:
+        print("tweets_json获取出错,tweets_json->")
+        return ''
+    global_Objects = tweets_json.get('globalObjects')
+    g_tweets = global_Objects.get('tweets')
     g_users = tweets_json['globalObjects']['users']
     count = 0
     for i in g_tweets:
@@ -157,3 +161,15 @@ def analyze_search_tweets(tweets_json, to_db=True):
                 return cursor_bottom
 
     return cursor_bottom
+
+
+# # 自动获取搜索内容推文(多线程)
+# def auto_get_user_search_tweets_multithreading(username, since_all_str, until_all_str, to_db=True, intervalDays=1):
+#     since_all = datetime.datetime.strptime(since_all_str, '%Y-%m-%d')
+#     until_all = datetime.datetime.strptime(until_all_str, '%Y-%m-%d')
+#     dc = (until_all - since_all).days
+#     if dc <= 31:
+#         s = dc/4
+#
+#         multithreading_list(arrayList, function, params=None, thread_num=0)
+#
