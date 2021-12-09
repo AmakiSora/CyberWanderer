@@ -172,3 +172,8 @@ PROXIES = {
 # 七牛云设置
 QN = Auth(parser.get('qiniu', 'AccessKey'), parser.get('qiniu', 'SecretKey'))
 
+# 百度翻译设置
+BAIDU = {
+    "appid": parser.get('baidu', 'appid'),
+    "appkey": parser.get('baidu', 'appkey')
+}

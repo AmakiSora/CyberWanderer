@@ -5,8 +5,8 @@ from django.db import models
 
 # 翻译
 class Translation(models.Model):
-    translation_id = models.UUIDField("翻译id", primary_key=True, auto_created=True, default=uuid.uuid4())
-    from_id = models.CharField('来源id', max_length=255, default='')
+    translation_id = models.AutoField("翻译id", primary_key=True)
+    from_id = models.CharField('来源id', max_length=255, null=True)
     translate_time = models.DateTimeField("翻译时间", auto_now=True)
     original_language = models.CharField('原文语言', max_length=255, default='')
     target_language = models.CharField('目标语言', max_length=255, default='')
