@@ -20,7 +20,8 @@ from .views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('hello/', page_hello),
-    path('twitter/', include('twitter.urls'))
+    path('twitter/', include('twitter.urls')),
+    path('translate/', include('translate.urls'))
     # path('test/<str:username>', page_test), #匹配string
     # path('test/<int:num>',page_test),  # 匹配int
     # path('test/<path:ph>', page_test),#匹配带/的string
