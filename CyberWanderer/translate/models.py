@@ -13,6 +13,7 @@ class Translation(models.Model):
 
     original_text = models.TextField('原文', default='')
     baidu_translation = models.TextField('百度翻译', default='')
+    fanyigou_translation = models.TextField('翻译狗翻译', default='')
     youdao_translation = models.TextField('有道翻译', default='')
     deepL_translation = models.TextField('DeepL翻译', default='')
     google_translation = models.TextField('Google翻译', default='')

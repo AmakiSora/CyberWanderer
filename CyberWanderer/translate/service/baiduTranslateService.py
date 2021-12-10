@@ -19,7 +19,7 @@ path = '/api/trans/vip/translate'
 url = endpoint + path
 
 
-# 发送翻译请求
+# 发送翻译请求(api)
 def translate(text, target_language, original_language='auto'):
     salt = random.randint(32768, 65536)
     sign = make_md5(appid + text + str(salt) + appkey)
