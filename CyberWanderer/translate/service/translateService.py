@@ -2,7 +2,7 @@
     翻译服务
 """
 from translate.models import Translation
-from translate.service import baiduTranslateService, fanyigouTranslateService
+from translate.service import baiduTranslateService, fanyigouTranslateService, youdaoTranslateService
 
 
 def getTranslate(text, select_engine, target_language, original_language='auto', to_db=True):
@@ -11,11 +11,19 @@ def getTranslate(text, select_engine, target_language, original_language='auto',
         print('全部调用!')
         result_translation['baidu_translation'] = baiduTranslateService.translate(text, target_language, original_language)
         result_translation['fanyigou_translation'] = fanyigouTranslateService.translate(text, target_language, original_language)
+        result_translation['youdao_translation'] = youdaoTranslateService.translate(text, target_language, original_language)
+
     if select_engine.find('baidu') != -1:
         print('百度翻译!')
         result_translation['baidu_translation'] = baiduTranslateService.translate(text, target_language, original_language)
+
     if select_engine.find('fanyigou') != -1:
+        print('翻译狗翻译!')
         result_translation['fanyigou_translation'] = fanyigouTranslateService.translate(text, target_language, original_language)
+
+    if select_engine.find('youdao') != -1:
+        print('有道翻译!')
+        result_translation['youdao_translation'] = youdaoTranslateService.translate(text, target_language, original_language)
 
     if to_db:
         Translation.objects.create(
