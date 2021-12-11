@@ -1,5 +1,5 @@
 """
-    腾讯翻译
+    腾讯翻译服务
 """
 import hashlib
 import hmac
@@ -19,6 +19,7 @@ secret_key = settings.TENCENT.get('secret_key')
 url = 'https://tmt.tencentcloudapi.com'
 
 
+# 发送翻译请求(api)
 def translate(text, target_language, original_language='auto'):
     payload = {
         'ProjectId': 233,
@@ -29,7 +30,7 @@ def translate(text, target_language, original_language='auto'):
     headers = getHeaders(payload)
     r = requests.post(url, json=payload, headers=headers)
     result = r.json()
-    print(json.dumps(result, indent=4, ensure_ascii=False))
+    # print(json.dumps(result, indent=4, ensure_ascii=False))
     dst = analyze_translation(result)
     return dst
 
@@ -37,7 +38,7 @@ def translate(text, target_language, original_language='auto'):
 # 解析返回数据
 def analyze_translation(data):
     if err := data.get('Response').get('Error'):
-        print(err)
+        print('腾讯翻译出错->', err)
         return ''
     return data.get('Response').get('TargetText')
 

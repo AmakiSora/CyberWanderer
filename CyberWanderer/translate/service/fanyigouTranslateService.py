@@ -22,7 +22,7 @@ def translate(text, target_language, original_language='auto'):
     }
     r = requests.post(url, data=payload, headers=headers)
     result = r.json()
-    print(result)
+    # print(json.dumps(result, indent=4, ensure_ascii=False))
     dst = analyze_translation(result)
     return dst
 
@@ -30,7 +30,7 @@ def translate(text, target_language, original_language='auto'):
 # 解析返回数据
 def analyze_translation(data):
     if data.get('code') != 0:
-        print(data)
+        print('翻译狗翻译出错->', data)
         return ''
     dst = data.get('data').get('dst')
     return dst

@@ -3,7 +3,7 @@
 """
 from translate.models import Translation
 from translate.service import baiduTranslateService, fanyigouTranslateService, youdaoTranslateService, \
-    tencentTranslateService
+    tencentTranslateService, deepLTranslateService
 
 
 def getTranslate(text, select_engine, target_language, original_language='auto', to_db=True):
@@ -14,6 +14,8 @@ def getTranslate(text, select_engine, target_language, original_language='auto',
         result_translation['fanyigou_translation'] = fanyigouTranslateService.translate(text, target_language, original_language)
         result_translation['youdao_translation'] = youdaoTranslateService.translate(text, target_language, original_language)
         result_translation['tencent_translation'] = tencentTranslateService.translate(text, target_language, original_language)
+        result_translation['deepL_translation'] = deepLTranslateService.translate(text, target_language, original_language)
+
 
     if select_engine.find('baidu') != -1:
         print('百度翻译!')
@@ -30,6 +32,10 @@ def getTranslate(text, select_engine, target_language, original_language='auto',
     if select_engine.find('tencent') != -1:
         print('腾讯翻译!')
         result_translation['tencent_translation'] = tencentTranslateService.translate(text, target_language, original_language)
+
+    if select_engine.find('DeepL') != -1:
+        print('DeepL翻译!')
+        result_translation['deepL_translation'] = deepLTranslateService.translate(text, target_language, original_language)
 
     if to_db:
         Translation.objects.create(

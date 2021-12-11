@@ -45,7 +45,7 @@ def make_md5(s, encoding='utf-8'):
 # 解析返回数据
 def analyze_translation(data):
     if data.get('error_code'):
-        print(data.get('error_msg'))
+        print('百度翻译出错->', data.get('error_msg'))
         return '', ''
     else:
         src = ''
