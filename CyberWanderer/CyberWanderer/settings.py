@@ -177,3 +177,7 @@ BAIDU = {
     "appid": parser.get('baidu', 'appid'),
     "appkey": parser.get('baidu', 'appkey')
 }
+TENCENT = {
+    'secret_id': parser.get('tencent', 'secret_id'),
+    'secret_key': parser.get('tencent', 'secret_key'),
+}

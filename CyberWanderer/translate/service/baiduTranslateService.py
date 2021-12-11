@@ -6,7 +6,6 @@ import requests
 import random
 import json
 from hashlib import md5
-
 from CyberWanderer import settings
 
 # 帐号/密码
@@ -14,9 +13,7 @@ appid = settings.BAIDU.get('appid')
 appkey = settings.BAIDU.get('appkey')
 
 # 请求地址
-endpoint = 'http://api.fanyi.baidu.com'
-path = '/api/trans/vip/translate'
-url = endpoint + path
+url = 'http://api.fanyi.baidu.com/api/trans/vip/translate'
 
 
 # 发送翻译请求(api)

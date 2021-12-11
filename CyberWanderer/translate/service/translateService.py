@@ -2,7 +2,8 @@
     翻译服务
 """
 from translate.models import Translation
-from translate.service import baiduTranslateService, fanyigouTranslateService, youdaoTranslateService
+from translate.service import baiduTranslateService, fanyigouTranslateService, youdaoTranslateService, \
+    tencentTranslateService
 
 
 def getTranslate(text, select_engine, target_language, original_language='auto', to_db=True):
@@ -12,6 +13,7 @@ def getTranslate(text, select_engine, target_language, original_language='auto',
         result_translation['baidu_translation'] = baiduTranslateService.translate(text, target_language, original_language)
         result_translation['fanyigou_translation'] = fanyigouTranslateService.translate(text, target_language, original_language)
         result_translation['youdao_translation'] = youdaoTranslateService.translate(text, target_language, original_language)
+        result_translation['tencent_translation'] = tencentTranslateService.translate(text, target_language, original_language)
 
     if select_engine.find('baidu') != -1:
         print('百度翻译!')
@@ -25,6 +27,10 @@ def getTranslate(text, select_engine, target_language, original_language='auto',
         print('有道翻译!')
         result_translation['youdao_translation'] = youdaoTranslateService.translate(text, target_language, original_language)
 
+    if select_engine.find('tencent') != -1:
+        print('腾讯翻译!')
+        result_translation['tencent_translation'] = tencentTranslateService.translate(text, target_language, original_language)
+
     if to_db:
         Translation.objects.create(
             original_language=original_language,
@@ -33,6 +39,7 @@ def getTranslate(text, select_engine, target_language, original_language='auto',
             baidu_translation=result_translation.get('baidu_translation', ''),
             fanyigou_translation=result_translation.get('fanyigou_translation',''),
             youdao_translation=result_translation.get('youdao_translation', ''),
+            tencent_translation=result_translation.get('tencent_translation', ''),
             deepL_translation=result_translation.get('deepL_translation', ''),
             google_translation=result_translation.get('google_translation', '')
         )
