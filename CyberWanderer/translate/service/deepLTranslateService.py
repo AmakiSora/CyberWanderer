@@ -39,9 +39,10 @@ def translate(text, target_language, original_language='auto'):
             "timestamp": time.time()
         }
     }
-    r = requests.post(url, params=payload, headers=headers, proxies=settings.PROXIES)
+    r = requests.post(url, json=payload, headers=headers)
+
     result = r.json()
-    print(json.dumps(result, indent=4, ensure_ascii=False))
+    # print(json.dumps(result, indent=4, ensure_ascii=False))
     dst = analyze_translation(result)
     return dst
 
