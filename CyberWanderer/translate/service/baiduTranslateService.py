@@ -4,7 +4,6 @@
 
 import requests
 import random
-import json
 from hashlib import md5
 from CyberWanderer import settings
 
@@ -18,6 +17,7 @@ url = 'http://api.fanyi.baidu.com/api/trans/vip/translate'
 
 # 发送翻译请求(api)
 def translate(text, target_language, original_language='auto'):
+    target_language = target_converter(target_language)
     salt = random.randint(32768, 65536)
     sign = make_md5(appid + text + str(salt) + appkey)
 
@@ -59,3 +59,21 @@ def analyze_translation(data):
                 src += d.get('src') + '\n'
                 dst += d.get('dst') + '\n'
         return src, dst
+
+
+# 转换器
+def target_converter(target):
+    if target == 'en':
+        return 'en'
+    elif target == 'zh':
+        return 'zh'
+    elif target == 'jp':
+        return 'jp'
+    elif target == 'fra':
+        return 'fra'
+    elif target == 'de':
+        return 'de'
+    elif target == 'ru':
+        return 'ru'
+    else:
+        return target

@@ -21,6 +21,7 @@ url = 'https://tmt.tencentcloudapi.com'
 
 # 发送翻译请求(api)
 def translate(text, target_language, original_language='auto'):
+    target_language = target_converter(target_language)
     payload = {
         'ProjectId': 233,
         'SourceText': text,
@@ -107,3 +108,21 @@ def getHeaders(payload):
         'X-TC-Language': 'zh-CN',
     }
     return headers
+
+
+# 转换器
+def target_converter(target):
+    if target == 'en':
+        return 'en'
+    elif target == 'zh':
+        return 'zh'
+    elif target == 'jp':
+        return 'ja'
+    elif target == 'fra':
+        return 'fr'
+    elif target == 'de':
+        return 'de'
+    elif target == 'ru':
+        return 'ru'
+    else:
+        return target

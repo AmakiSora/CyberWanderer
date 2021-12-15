@@ -16,6 +16,7 @@ url = 'https://www2.deepl.com/jsonrpc?method=LMT_handle_jobs'
 
 # 发送翻译请求
 def translate(text, target_language, original_language='auto'):
+    target_language = target_converter(target_language)
     headers = {'Content-Type': 'application/json'}
     payload = {
         'method': 'LMT_handle_jobs',
@@ -54,3 +55,21 @@ def analyze_translation(data):
         return ''
     dst = data.get('result').get('translations')[0].get('beams')[0].get('postprocessed_sentence')
     return dst
+
+
+# 转换器
+def target_converter(target):
+    if target == 'en':
+        return 'EN'
+    elif target == 'zh':
+        return 'ZH'
+    elif target == 'jp':
+        return 'JA'
+    elif target == 'fra':
+        return 'FR'
+    elif target == 'de':
+        return 'DE'
+    elif target == 'ru':
+        return 'RU'
+    else:
+        return target

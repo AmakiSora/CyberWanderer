@@ -10,6 +10,7 @@ url = 'http://www.fanyigou.com/sdoc/text/trans'
 
 # 发送翻译请求
 def translate(text, target_language, original_language='auto'):
+    target_language = target_converter(target_language)
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
     }
@@ -34,3 +35,21 @@ def analyze_translation(data):
         return ''
     dst = data.get('data').get('dst')
     return dst
+
+
+# 转换器
+def target_converter(target):
+    if target == 'en':
+        return 'en'
+    elif target == 'zh':
+        return 'zh'
+    elif target == 'jp':
+        return 'jp'
+    elif target == 'fra':
+        return 'fra'
+    elif target == 'de':
+        return 'de'
+    elif target == 'ru':
+        return 'ru'
+    else:
+        return target
