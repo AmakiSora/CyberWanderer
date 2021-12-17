@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'twitter',  # 推特模块
     'translate',  # 翻译模块
+    'bilibili',  # 批哩批哩模块
 ]
 # 中间件
 MIDDLEWARE = [

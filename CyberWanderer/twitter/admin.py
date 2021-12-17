@@ -18,7 +18,7 @@ class TweetManager(admin.ModelAdmin):
 
 
 class TwitterUserManager(admin.ModelAdmin):
-    list_display = ['username', 'name', 'description', 'created_at']
+    list_display = ['username', 'name', 'tweet_count', 'description', 'created_at']
     list_display_links = ['username']
     # list_filter = ['created_time']
 
