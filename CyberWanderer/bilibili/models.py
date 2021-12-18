@@ -6,7 +6,6 @@ class BiliBiliUser(models.Model):
     uid = models.CharField('用户唯一id', max_length=255, primary_key=True, null=False)
     name = models.CharField('昵称', max_length=255, default='')
     avatar_url = models.CharField('头像url', max_length=1023, default='')
-    created_time = models.DateTimeField('帐号创建时间', null=True)
     sign = models.CharField('简介', max_length=1023, default='')
     birthday = models.CharField('生日', max_length=255, default='')
     level = models.IntegerField('等级', default=-1)

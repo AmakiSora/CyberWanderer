@@ -7,11 +7,11 @@ urlpatterns = [
     # 更换token
     path('changeToken', changeToken),
     # 解析推文信息
-    path('analyzeUserTweets', analyzeUserTweets),
+    # path('analyzeUserTweets', analyzeUserTweets),
     # 自动获取推文
     path('autoGetUserTweets', autoGetUserTweets),
     # 解析推特用户信息
-    path('analyzeUserInfo', analyzeUserInfo),
+    # path('analyzeUserInfo', analyzeUserInfo),
     # 自动获取用户信息
     path('autoGetUserInfo', autoGetUserInfo),
     # 自动获取搜索推文

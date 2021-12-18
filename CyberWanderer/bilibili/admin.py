@@ -5,7 +5,7 @@ from bilibili.models import BiliBiliUser, BiliBiliDynamic
 
 
 class BiliBiliUserManager(admin.ModelAdmin):
-    list_display = ['uid', 'name', 'dynamic_count', 'sign', 'created_time']
+    list_display = ['uid', 'name', 'dynamic_count', 'sign']
     list_display_links = ['uid']
     # list_filter = ['created_time']
 
