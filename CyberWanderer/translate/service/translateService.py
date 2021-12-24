@@ -4,13 +4,15 @@
 from translate.models import Translation
 from translate.service import baiduTranslateService, fanyigouTranslateService, youdaoTranslateService, \
     tencentTranslateService, deepLTranslateService, googleTranslateService
+import logging
 
+logger = logging.getLogger(__name__)
 
 def getTranslate(text, select_engine, target_language, original_language='auto', to_db=True):
     result_translation = {}
     target_language = target_converter(target_language)
     if not select_engine:
-        print('全部调用!')
+        logger.info('全部调用!')
         result_translation['baidu_translation'] = baiduTranslateService.translate(text, target_language,
                                                                                   original_language)
         result_translation['fanyigou_translation'] = fanyigouTranslateService.translate(text, target_language,
@@ -25,32 +27,32 @@ def getTranslate(text, select_engine, target_language, original_language='auto',
                                                                                     original_language)
 
     if select_engine.find('baidu') != -1:
-        print('百度翻译!')
+        logger.info('百度翻译!')
         result_translation['baidu_translation'] = baiduTranslateService.translate(text, target_language,
                                                                                   original_language)
 
     if select_engine.find('fanyigou') != -1:
-        print('翻译狗翻译!')
+        logger.info('翻译狗翻译!')
         result_translation['fanyigou_translation'] = fanyigouTranslateService.translate(text, target_language,
                                                                                         original_language)
 
     if select_engine.find('youdao') != -1:
-        print('有道翻译!')
+        logger.info('有道翻译!')
         result_translation['youdao_translation'] = youdaoTranslateService.translate(text, target_language,
                                                                                     original_language)
 
     if select_engine.find('tencent') != -1:
-        print('腾讯翻译!')
+        logger.info('腾讯翻译!')
         result_translation['tencent_translation'] = tencentTranslateService.translate(text, target_language,
                                                                                       original_language)
 
     if select_engine.find('DeepL') != -1:
-        print('DeepL翻译!')
+        logger.info('DeepL翻译!')
         result_translation['deepL_translation'] = deepLTranslateService.translate(text, target_language,
                                                                                   original_language)
 
     if select_engine.find('google') != -1:
-        print('google翻译!')
+        logger.info('google翻译!')
         result_translation['google_translation'] = googleTranslateService.translate(text, target_language,
                                                                                     original_language)
 
@@ -67,9 +69,9 @@ def getTranslate(text, select_engine, target_language, original_language='auto',
             google_translation=result_translation.get('google_translation', '')
         )
     else:
-        print('original_text:' + text)
+        logger.info(str('original_text:' + text))
         for d in result_translation.keys():
-            print(d + ':' + result_translation.get(d))
+            logger.info(str(d + ':' + result_translation.get(d)))
     result_translation['original_text:'] = text
     return result_translation
 

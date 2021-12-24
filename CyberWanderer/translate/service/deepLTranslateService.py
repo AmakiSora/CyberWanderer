@@ -10,7 +10,9 @@ import time
 import requests
 
 from CyberWanderer import settings
+import logging
 
+logger = logging.getLogger(__name__)
 url = 'https://www2.deepl.com/jsonrpc?method=LMT_handle_jobs'
 
 
@@ -51,7 +53,7 @@ def translate(text, target_language, original_language='auto'):
 # 解析返回数据
 def analyze_translation(data):
     if err := data.get('error'):
-        print('DeepL翻译出错->', err)
+        logger.error(str('DeepL翻译出错->' + str(err)))
         return ''
     dst = data.get('result').get('translations')[0].get('beams')[0].get('postprocessed_sentence')
     return dst

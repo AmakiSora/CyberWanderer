@@ -10,7 +10,9 @@ from datetime import datetime
 import requests
 
 from CyberWanderer import settings
+import logging
 
+logger = logging.getLogger(__name__)
 # 密钥参数
 secret_id = settings.TENCENT.get('secret_id')
 secret_key = settings.TENCENT.get('secret_key')
@@ -39,7 +41,7 @@ def translate(text, target_language, original_language='auto'):
 # 解析返回数据
 def analyze_translation(data):
     if err := data.get('Response').get('Error'):
-        print('腾讯翻译出错->', err)
+        logger.error(str('腾讯翻译出错->' + str(err)))
         return ''
     return data.get('Response').get('TargetText')
 

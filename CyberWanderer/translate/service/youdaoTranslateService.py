@@ -3,7 +3,9 @@
 """
 # 请求地址
 import requests
+import logging
 
+logger = logging.getLogger(__name__)
 url = 'https://aidemo.youdao.com/trans'
 
 
@@ -28,7 +30,7 @@ def translate(text, target_language, original_language='auto'):
 # 解析返回数据
 def analyze_translation(data):
     if data.get('errorCode') != '0':
-        print('有道翻译出错->', data)
+        logger.error(str('有道翻译出错->' + str(data)))
         return '', ''
     src = data.get('query', '')
     dst = ''

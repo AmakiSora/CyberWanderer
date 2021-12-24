@@ -9,13 +9,16 @@ from CyberWanderer import settings
 
 # 下载图片到对象存储(七牛云)
 from CyberWanderer.utils.threadUtil import multithreading_list
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def download_file_qiniu(url, file_name='', bucket_name='default-0', isProxy=False):
     if file_name == '':
         file_name = url.split('/')[-1]
     if qiniu_get_info(file_name, bucket_name) is not None:
-        print('资源已存在', url)
+        logger.info(str('资源已存在' + str(url)))
         return 'exist'
     token = settings.QN.upload_token(bucket_name, file_name, 60)
     try:
@@ -27,13 +30,13 @@ def download_file_qiniu(url, file_name='', bucket_name='default-0', isProxy=Fals
         if r.status_code == 200:
             try:
                 re, info = qiniu.put_data(token, file_name, data=r.content)
-                print("上传到云成功,url:", url)
+                logger.info(str("上传到云成功,url:" + str(url)))
                 return '1'
             except:
-                print("上传到云失败,url:", url)
+                logger.warning(str("上传到云失败,url:" + str(url)))
                 return 'fail'
     except:
-        print("连接失败!url:", url)
+        logger.error(str("连接失败!url:" + str(url)))
         return 'fail'
 
 
@@ -52,13 +55,13 @@ def upload_file_qiniu(local_url, file_name='', bucket_name='default-0'):
     if file_name == '':
         file_name = local_url.split('/')[-1]
     if qiniu_get_info(file_name, bucket_name) is not None:
-        print('资源已存在', local_url)
+        logger.info(str('资源已存在' + str(local_url)))
         return 'exist'
     token = settings.QN.upload_token(bucket_name, file_name, 60)
     re, info = qiniu.put_file(token, file_name, local_url)
-    print(re)
+    logger.info(str(re))
     if re is None:
-        print('上传失败!url:' + local_url)
+        logger.info(str('上传失败!url:' + str(local_url)))
         return 'fail'
     return '上传成功!url:' + local_url
 

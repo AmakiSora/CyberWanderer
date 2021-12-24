@@ -6,6 +6,9 @@ import os
 import requests
 
 from CyberWanderer import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # 下载图片到本地
@@ -20,11 +23,11 @@ def download_file_local(url, file_name='', folder_name=''):
             if r.status_code == 200:
                 try:
                     open(folder_name + file_name, 'wb').write(r.content)
-                    print("下载成功,url:", url)
+                    logger.info(str("下载成功,url:" + str(url)))
                     return 200, file_name
                 except:
-                    print("下载失败,url：", url)
+                    logger.warning(str("下载失败,url：" + str(url)))
                     return 500, url
         except:
-            print("连接失败!url：", url)
+            logger.error(str("连接失败!url：" + str(url)))
             return 404, url

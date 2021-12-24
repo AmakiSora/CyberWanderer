@@ -4,7 +4,9 @@
 
 # 请求地址
 import requests
+import logging
 
+logger = logging.getLogger(__name__)
 url = 'http://www.fanyigou.com/sdoc/text/trans'
 
 
@@ -31,7 +33,7 @@ def translate(text, target_language, original_language='auto'):
 # 解析返回数据
 def analyze_translation(data):
     if data.get('code') != 0:
-        print('翻译狗翻译出错->', data)
+        logger.error(str('翻译狗翻译出错->' + str(data)))
         return ''
     dst = data.get('data').get('dst')
     return dst

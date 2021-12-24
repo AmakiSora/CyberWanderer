@@ -6,7 +6,9 @@
 import goslate
 import urllib.request
 from CyberWanderer import settings
+import logging
 
+logger = logging.getLogger(__name__)
 
 # 发送翻译请求
 def translate(text, target_language, original_language='auto'):
@@ -17,7 +19,7 @@ def translate(text, target_language, original_language='auto'):
     try:
         dst = gs.translate(text, target_language)
     except:
-        print('谷歌翻译出错')
+        logger.error('谷歌翻译出错')
         dst = ''
     return dst
 

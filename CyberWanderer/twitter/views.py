@@ -4,7 +4,9 @@ import json
 from django.http import HttpResponse
 from .service import twitterUserService, userTweetsService, twitterRequestService, searchTweetsService, \
     userImgDownloadService, showTweetsService
+import logging
 
+logger = logging.getLogger(__name__)
 
 # 更换token
 def changeToken(request):
@@ -96,7 +98,7 @@ def autoGetUserImg(request):
 
 # 展示推文数据
 def showTweets(request):
-    print(request.GET.items())
+    logger.info(request.GET.items())
     params = {'username': request.GET.get('username')}
     data = showTweetsService.show_user_tweets(**params)
     return HttpResponse(data, content_type="application/json")
@@ -115,13 +117,13 @@ def batchUpdateTweets(request):
             return HttpResponse("名单列表不能为空！")
         elif type(usernameList) is not list:
             return HttpResponse("参数需要为列表！")
-        print(usernameList)
+        logger.info(usernameList)
         for username in usernameList:
             rest_id = twitterUserService.getRestIdByUsername(username)
             if rest_id is None:
-                print(username + '在数据库中不存在!')
+                logger.info(username + '在数据库中不存在!')
                 continue
-            print("更新用户" + username + "的推文")
+            logger.info("更新用户" + username + "的推文")
             userTweetsService.autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
             userTweetsService.updateTweetCount(username)
         return HttpResponse("更新完成！")

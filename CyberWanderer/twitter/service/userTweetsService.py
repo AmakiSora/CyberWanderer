@@ -8,7 +8,9 @@ import requests
 from CyberWanderer import settings
 from twitter.models import Tweet, TwitterUser
 from twitter.service.twitterRequestService import get_token, headers, get_headers
+import logging
 
+logger = logging.getLogger(__name__)
 '''
     用户推特推文服务
     限制,只能搜最近850条
@@ -58,6 +60,7 @@ def autoGetUserTweets(user_id, count=20, to_db=True, frequency=1, updateTweet=Fa
 
     return tweets_json
 
+
 # 分析用户推文
 def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
     # j = open('D:\cosmos\OneDrive/twitter/json.txt', 'r', encoding="utf-8")
@@ -94,8 +97,8 @@ def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
                     # print("光标顶部,暂时不处理")
                 elif re.match("^cursor-bottom-[0-9-a-zA-Z]*", entryId):  # 光标底部
                     cursor_bottom = e['content'].get('value')
-            print(tweets)
-            print('本次请求一共', tweetNum, "条推文!")
+            logger.info(str(tweets))
+            logger.info(str('本次请求一共' + str(tweetNum) + "条推文!"))
             Tweet.objects.bulk_create(tweets, ignore_conflicts=True)  # 批量存入数据库(忽略重复id,即不会更新数据)
             if updateTweet:
                 Tweet.objects.bulk_update(tweets, ['name', 'full_text'])  # 批量更新,(一般没什么用,因为推特禁止编辑推文)
@@ -110,7 +113,7 @@ def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
 # 分析推文具体信息
 def analyzeTweetsResultJSON(result, tweet, tweets, to_db=True):
     if result['__typename'] == 'TweetUnavailable':
-        print('推文不可用')
+        logger.warning('推文不可用')
         return
     tweet.name = result['core']['user_results']['result']['legacy']['name']  # 名称
     tweet.username = result['core']['user_results']['result']['legacy']['screen_name']  # 唯一用户名
@@ -147,7 +150,7 @@ def analyzeTweetsResultJSON(result, tweet, tweets, to_db=True):
             tweets.append(tweet)
             # tweet.save()  # 保存至数据库
         else:
-            print(tweet)
+            logger.info(str(tweet))
         # 某些推文是转推，但是没有附带quoted_status_result这个转推信息，目前不知道为什么
         quoted_status_result = result.get('quoted_status_result', None)
         if quoted_status_result is not None:
@@ -162,7 +165,7 @@ def analyzeTweetsResultJSON(result, tweet, tweets, to_db=True):
             tweets.append(tweet)
             # tweet.save()  # 保存至数据库
         else:
-            print(tweet)
+            logger.info(str(tweet))
 
 
 # 更新推文数

@@ -2,10 +2,12 @@ import logging
 
 from twitter.models import Tweet, TwitterUser
 from .twitterRequestService import *
+import logging
 
 '''
     推特用户服务
 '''
+logger = logging.getLogger(__name__)
 
 
 # 根据username获取rest_id
@@ -69,6 +71,6 @@ def analyzeUserInfo(info_json, to_db):
     user.friends_count = legacy_json.get('friends_count')  # 正在关注
     if to_db:  # 存入数据库
         user.save()
-        logging.info(user.username, "加入数据库")
+        logger.info(str(str(user.username) + "加入数据库"))
     else:
-        print(user.__str__())
+        logger.info(user.__str__())

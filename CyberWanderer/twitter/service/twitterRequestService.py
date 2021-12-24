@@ -6,7 +6,9 @@ import json
 import requests
 
 from CyberWanderer import settings
+import logging
 
+logger = logging.getLogger(__name__)
 headers = {
     # "Host": "utils.com",
     # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0',
@@ -30,7 +32,7 @@ url_token = 'https://api.twitter.com/1.1/guest/activate.json'
 # 获取token
 def get_token():
     token = json.loads(requests.post(url_token, headers=headers, proxies=settings.PROXIES).text)['guest_token']
-    print('guest—token：', token)
+    logger.info(str('guest—token：' + str(token)))
     headers['x-guest-token'] = token
     return token
 

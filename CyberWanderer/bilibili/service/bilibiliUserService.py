@@ -8,7 +8,9 @@ import json
 import requests
 
 from bilibili.models import BiliBiliUser
+import logging
 
+logger = logging.getLogger(__name__)
 
 def autoGetUserInfo(uid, to_db):
     info_json = getUserInfo(uid)
@@ -61,12 +63,12 @@ def analyzeUserInfo(info_json, to_db):
     if to_db:
         user.save()
     else:
-        print(uid)
-        print(user.name)
-        print(user.avatar_url)
-        print(user.birthday)
-        print(user.sign)
-        print(user.level)
-        print(user.friends_count)
-        print(user.followers_count)
+        logger.info(str(uid))
+        logger.info(str(user.name))
+        logger.info(str(user.avatar_url))
+        logger.info(str(user.birthday))
+        logger.info(str(user.sign))
+        logger.info(str(user.level))
+        logger.info(str(user.friends_count))
+        logger.info(str(user.followers_count))
     return '获取成功'

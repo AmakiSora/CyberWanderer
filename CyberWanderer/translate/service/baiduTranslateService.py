@@ -6,7 +6,9 @@ import requests
 import random
 from hashlib import md5
 from CyberWanderer import settings
+import logging
 
+logger = logging.getLogger(__name__)
 # 帐号/密码
 appid = settings.BAIDU.get('appid')
 appkey = settings.BAIDU.get('appkey')
@@ -45,7 +47,7 @@ def make_md5(s, encoding='utf-8'):
 # 解析返回数据
 def analyze_translation(data):
     if data.get('error_code'):
-        print('百度翻译出错->', data.get('error_msg'))
+        logger.error(str('百度翻译出错->' + str(data)))
         return '', ''
     else:
         src = ''

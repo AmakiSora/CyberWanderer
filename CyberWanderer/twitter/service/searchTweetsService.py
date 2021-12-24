@@ -10,6 +10,9 @@ import requests
 from CyberWanderer import settings
 from twitter.models import Tweet
 from twitter.service.twitterRequestService import get_headers, get_token
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # 获取用户搜索推文()
@@ -48,17 +51,17 @@ def get_user_search_tweets(username, since, until, cursor=''):
     if cursor != '':
         params['cursor'] = cursor
     q = '(from:' + username + ')until:' + until + ' since:' + since
-    print(q)
+    logger.info(q)
     params['q'] = q
     try:
         tweets_json = requests.get(url, params, headers=get_headers(), proxies=settings.PROXIES)
     except:
-        print("太频繁啦，慢点")
+        logger.error("太频繁啦，慢点")
         return None
     if tweets_json.status_code == 200:
         return json.loads(tweets_json.text)
     else:
-        print('出错啦,报错信息:', tweets_json.text)
+        logger.error('出错啦,报错信息:' + str(tweets_json.text))
     return None
 
 
@@ -73,7 +76,8 @@ def auto_get_user_search_tweets(username, since_all_str, until_all_str, to_db=Tr
     while dc > 0:
         if dc > intervalDays:
             loopAnalysis(username, since.strftime('%Y-%m-%d'), until.strftime('%Y-%m-%d'))
-            print("执行分析区间:", since, '-', until, '剩余天数：', dc - intervalDays)
+            logger.info(str("执行分析区间: " + str(since) + ' - ' + str(until) + ' 剩余天数：' + str(dc - intervalDays)))
+            # print("执行分析区间:", since, '-', until, '剩余天数：', dc - intervalDays)
             since = until
             until = since + datetime.timedelta(days=intervalDays)
             if (until_all - until).days < 0:
@@ -81,7 +85,8 @@ def auto_get_user_search_tweets(username, since_all_str, until_all_str, to_db=Tr
             dc = (until_all - since).days
         else:
             loopAnalysis(username, since.strftime('%Y-%m-%d'), until.strftime('%Y-%m-%d'))
-            print("执行分析区间:", since, '-', until, '剩余天数：', dc - intervalDays)
+            logger.info(str("执行分析区间: " + str(since) + ' - ' + str(until) + ' 剩余天数：' + str(dc - intervalDays)))
+            # print("执行分析区间:", since, '-', until, '剩余天数：', dc - intervalDays)
             dc = dc - intervalDays
         refreshToken += 1
         if refreshToken > 10:
@@ -100,7 +105,7 @@ def loopAnalysis(username, since, until):
 # 分析搜索推文
 def analyze_search_tweets(tweets_json, to_db=True):
     if tweets_json is None:
-        print("tweets_json获取出错,tweets_json->")
+        logger.error("tweets_json获取出错,tweets_json->")
         return ''
     global_Objects = tweets_json.get('globalObjects')
     g_tweets = global_Objects.get('tweets')
@@ -144,7 +149,7 @@ def analyze_search_tweets(tweets_json, to_db=True):
             tweet.tweet_urls = urls  # 推文附加地址
         tweet.save()  # 保存至数据库
         count += 1
-    print('一共', count, '条推文')
+    logger.info('一共 ' + str(count) + ' 条推文')
     cursor_bottom = ''
     if count == 0:
         return cursor_bottom
@@ -161,7 +166,6 @@ def analyze_search_tweets(tweets_json, to_db=True):
                 return cursor_bottom
 
     return cursor_bottom
-
 
 # # 自动获取搜索内容推文(多线程)
 # def auto_get_user_search_tweets_multithreading(username, since_all_str, until_all_str, to_db=True, intervalDays=1):
