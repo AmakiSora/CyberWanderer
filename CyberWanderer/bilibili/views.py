@@ -1,7 +1,7 @@
 import json
 
 from django.http import HttpResponse
-from bilibili.service import bilibiliUserService
+from bilibili.service import bilibiliUserService, bilibiliDynamicService
 
 
 # 自动获取用户信息
@@ -14,3 +14,16 @@ def autoGetUserInfo(request):
         to_db = body.get('to_db', True)  # 是否入库
         return HttpResponse(bilibiliUserService.autoGetUserInfo(uid, to_db))
 
+
+# 自动获取用户动态
+def autoGetUserDynamic(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        uid = body.get('uid', '')
+        name = body.get('name', '')
+        to_db = body.get('to_db', True)  # 是否入库
+        if uid == '':
+            uid = bilibiliUserService.getUidByName(name)
+            if uid is None:
+                return HttpResponse('请输入name或uid')
+        return HttpResponse(bilibiliDynamicService.autoGetUserDynamic(uid, to_db))

@@ -2,7 +2,6 @@
     b用户服务
 """
 
-# 自动获取b用户信息(优先搜索uid)
 import json
 
 import requests
@@ -12,9 +11,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+# 自动获取b用户信息(优先搜索uid)
 def autoGetUserInfo(uid, to_db):
     info_json = getUserInfo(uid)
-    # '自动获取B站用户信息成功!'
     return analyzeUserInfo(info_json, to_db)
 
 
@@ -72,3 +72,12 @@ def analyzeUserInfo(info_json, to_db):
         logger.info(str(user.friends_count))
         logger.info(str(user.followers_count))
     return '获取成功'
+
+
+# 根据name从数据库中取出uid
+def getUidByName(name):
+    try:
+        uid = BiliBiliUser.objects.get(name=name).uid
+    except:
+        return None
+    return uid
