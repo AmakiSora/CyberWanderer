@@ -22,7 +22,7 @@ class BiliBiliDynamic(models.Model):
     created_time = models.DateTimeField("动态时间", null=True)
     full_text = models.CharField('动态内容', max_length=2047, default='')
     dynamic_media_urls = models.CharField('动态媒体地址', max_length=2047, default='')
-    dynamic_hashtags = models.CharField('动态标签', max_length=255, default='')
+    bvid = models.CharField('视频bv号', max_length=255, default='')
     dynamic_urls = models.CharField('动态扩展地址', max_length=2047, default='')
     dynamic_type = models.CharField('动态类型', max_length=255, default='')
     status = models.CharField('状态', max_length=255, default='')
