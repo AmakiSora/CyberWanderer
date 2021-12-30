@@ -71,7 +71,7 @@ def analyzeUserInfo(info_json, to_db):
         logger.info(str(user.level))
         logger.info(str(user.friends_count))
         logger.info(str(user.followers_count))
-    return '获取成功'
+    return 'uid : ' + str(uid) + ', up : ' + user.name
 
 
 # 根据name从数据库中取出uid

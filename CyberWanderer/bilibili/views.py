@@ -21,9 +21,10 @@ def autoGetUserDynamic(request):
         body = json.loads(request.body)
         uid = body.get('uid', '')
         name = body.get('name', '')
+        frequency = body.get('frequency', 1)
         to_db = body.get('to_db', True)  # 是否入库
         if uid == '':
             uid = bilibiliUserService.getUidByName(name)
             if uid is None:
                 return HttpResponse('请输入name或uid')
-        return HttpResponse(bilibiliDynamicService.autoGetUserDynamic(uid, to_db))
+        return HttpResponse(bilibiliDynamicService.autoGetUserDynamic(uid, to_db, frequency))

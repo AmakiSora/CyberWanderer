@@ -7,17 +7,28 @@ import json
 import requests
 import logging
 
-from bilibili.models import BiliBiliDynamic
+from bilibili.models import BiliBiliDynamic, BiliBiliUser
 
 logger = logging.getLogger(__name__)
 
 
 # 自动获取b用户信息(优先搜索uid)
-def autoGetUserDynamic(uid, to_db):
+def autoGetUserDynamic(uid, to_db=True, frequency=1):
     data_json = getUserDynamic(uid)
-    return analyzeUserDynamic(data_json, to_db)
+    has_more, next_offset = analyzeUserDynamic(data_json, to_db)
+    if frequency > 1:
+        for i in range(frequency):
+            data_json = getUserDynamic(uid, next_offset)
+            # 无后续或出错!
+            if has_more != 1:
+                updateDynamicCount(uid)
+                return next_offset
+            has_more, next_offset = analyzeUserDynamic(data_json, to_db)
+    updateDynamicCount(uid)
+    return '获取完成!'
 
 
+# 获取动态json
 def getUserDynamic(uid, offset_dynamic_id=0):
     u = 'https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history'
     params = {
@@ -32,12 +43,14 @@ def getUserDynamic(uid, offset_dynamic_id=0):
     return None
 
 
+# 分析动态json
 def analyzeUserDynamic(data_json, to_db):
     if data_json.get('code') != 0:
-        return '没有获取到动态!'
+        return 0, '没有获取到动态!'
     data = data_json.get('data')
     cards = data.get('cards')
     dynamics = []
+    dynamicNum = 0  # 记录动态数
     if cards is not None:
         for card in cards:
             d = BiliBiliDynamic()
@@ -71,18 +84,39 @@ def analyzeUserDynamic(data_json, to_db):
                 c = json.loads(card['card'])
                 d.full_text = c['dynamic']
                 d.bvid = card['desc']['bvid']
-            # 512:动漫影剧
-            elif d.dynamic_type == 512:
-                pass
-            # 4308:直播
-            elif d.dynamic_type == 4308:
-                pass
             # 64:专栏
             elif d.dynamic_type == 64:
-                pass
+                d.full_text = card
+            # 256:音乐
+            elif d.dynamic_type == 256:
+                d.full_text = card
+            # 512:动漫影剧
+            elif d.dynamic_type == 512:
+                d.full_text = card
+            # 1024:源动态已被作者删除
+            elif d.dynamic_type == 1024:
+                d.full_text = card
+            # 2048:演唱会
+            elif d.dynamic_type == 2048:
+                d.full_text = card
+            # 4099:综艺,例:589592498855379800
+            elif d.dynamic_type == 4099:
+                d.full_text = card
+            # 4200:结束了的直播,例:414318706021128124
+            elif d.dynamic_type == 4200:
+                d.full_text = card
+            # 4300:合集,例:353559964051664217
+            elif d.dynamic_type == 4300:
+                d.full_text = card
+            # 4308:直播
+            elif d.dynamic_type == 4308:
+                d.full_text = card
             else:
                 logger.warning('有其他类型,解决一下!' + d.dynamic_type)
+                logger.warning(card)
+                d.full_text = card
             dynamics.append(d)
+            dynamicNum += 1
         if to_db:
             BiliBiliDynamic.objects.bulk_create(dynamics, ignore_conflicts=True)  # 批量存入数据库(忽略重复id,即不会更新数据)
         else:
@@ -94,6 +128,10 @@ def analyzeUserDynamic(data_json, to_db):
                 logger.info(i.full_text)
                 logger.info(i.created_time)
                 logger.info('-------------------------------------------------------')
+    logger.info('本次共获取 ' + str(dynamicNum) + '条动态')
+    has_more = data.get('has_more', 0)
+    next_offset = data.get('next_offset', None)
+    return has_more, next_offset
 
 
 # 处理被转发的动态信息
@@ -102,7 +140,7 @@ def getQuotedDynamic(origin, card, dynamic_type):
     qd.dynamic_id = origin['dynamic_id_str']
     qd.dynamic_type = dynamic_type
     qd.created_time = datetime.datetime.fromtimestamp(origin['timestamp'])
-    # 2: 自己发表的动态
+    # 2:自己发表的动态
     if dynamic_type == 2:
         co = json.loads(card['origin'])
         qd.full_text = co['item']['description']
@@ -112,6 +150,12 @@ def getQuotedDynamic(origin, card, dynamic_type):
         if pictures is not None:
             for p in pictures:
                 qd.dynamic_media_urls = qd.dynamic_media_urls + '|' + p.get('img_src')
+    # 4:自己发表的无图片动态
+    elif dynamic_type == 4:
+        co = json.loads(card['origin'])
+        qd.full_text = co['item']['content']
+        qd.uid = co['user']['uid']
+        qd.name = co['user']['uname']
     # 8:视频投稿
     elif dynamic_type == 8:
         qd.bvid = origin['bvid']
@@ -119,4 +163,15 @@ def getQuotedDynamic(origin, card, dynamic_type):
         qd.full_text = co['dynamic']
         qd.uid = co['owner']['mid']
         qd.name = co['owner']['name']
+    else:
+        logger.warning('有新被转发动态类型,请处理!!!' + str(dynamic_type))
+        logger.warning(card)
+        qd.full_text = card
     return qd
+
+
+# 更新动态数
+def updateDynamicCount(uid):
+    t = BiliBiliUser.objects.get(uid=uid)
+    t.dynamic_count = BiliBiliDynamic.objects.filter(uid=uid).count()
+    t.save()
