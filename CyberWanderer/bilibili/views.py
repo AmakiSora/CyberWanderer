@@ -1,7 +1,7 @@
 import json
 
 from django.http import HttpResponse
-from bilibili.service import bilibiliUserService, bilibiliDynamicService
+from bilibili.service import bilibiliUserService, bilibiliDynamicService, bilibiliVideoService
 
 
 # 自动获取用户信息
@@ -28,3 +28,17 @@ def autoGetUserDynamic(request):
             if uid is None:
                 return HttpResponse('请输入name或uid')
         return HttpResponse(bilibiliDynamicService.autoGetUserDynamic(uid, to_db, frequency))
+
+
+# 自动获取用户所有视频信息
+def autoGetUserVideo(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        uid = body.get('uid', '')
+        name = body.get('name', '')
+        to_db = body.get('to_db', True)  # 是否入库
+        if uid == '':
+            uid = bilibiliUserService.getUidByName(name)
+            if uid is None:
+                return HttpResponse('请输入name或uid')
+        return HttpResponse(bilibiliVideoService.autoGetUserVideo(uid, to_db))

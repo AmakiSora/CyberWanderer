@@ -27,3 +27,13 @@ class BiliBiliDynamic(models.Model):
     dynamic_type = models.CharField('动态类型', max_length=255, default='')
     status = models.CharField('状态', max_length=255, default='')
     quoted_dynamic_id = models.CharField('转载动态id', max_length=255, default='')
+
+
+class BiliBiliVideo(models.Model):
+    bvid = models.CharField('视频bv号', max_length=255, primary_key=True)
+    title = models.CharField('标题', max_length=255)
+    description = models.CharField('视频简介', max_length=2047, default='')
+    created_time = models.DateTimeField("投稿时间", null=True)
+    uid = models.CharField('up主uid', max_length=255, default='')
+    name = models.CharField('昵称', max_length=255, default='')
+    pic = models.CharField('视频封面', max_length=255, default='')

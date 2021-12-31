@@ -8,5 +8,7 @@ urlpatterns = [
     path('autoGetUserInfo', autoGetUserInfo),
     # 自动获取用户动态
     path('autoGetUserDynamic', autoGetUserDynamic),
+    # 自动获取用户所有视频信息
+    path('autoGetUserVideo', autoGetUserVideo),
     # path('',),
 ]
