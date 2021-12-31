@@ -12,6 +12,7 @@ class BiliBiliUser(models.Model):
     friends_count = models.IntegerField('正在关注', default=-1)
     followers_count = models.IntegerField('关注者', default=-1)
     dynamic_count = models.IntegerField('动态数', default=0)
+    video_count = models.IntegerField('视频数', default=0)
 
 
 # 动态信息

@@ -7,7 +7,7 @@ import logging
 
 import requests
 
-from bilibili.models import BiliBiliVideo
+from bilibili.models import BiliBiliVideo, BiliBiliUser
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +21,7 @@ def autoGetUserVideo(uid, to_db=True):
         logger.info(data_json)
         has_more = analyzeUserVideo(data_json, to_db)
         page += 1
+    updateVideoCount(uid)
     return '获取成功'
 
 
@@ -77,3 +78,9 @@ def analyzeUserVideo(data_json, to_db):
         return 0
     return 1
 
+
+# 更新投稿数
+def updateVideoCount(uid):
+    t = BiliBiliUser.objects.get(uid=uid)
+    t.video_count = BiliBiliVideo.objects.filter(uid=uid).count()
+    t.save()
