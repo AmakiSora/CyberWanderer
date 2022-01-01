@@ -1,7 +1,8 @@
 import json
 
 from django.http import HttpResponse
-from bilibili.service import bilibiliUserService, bilibiliDynamicService, bilibiliVideoService
+from bilibili.service import bilibiliUserService, bilibiliDynamicService, bilibiliVideoService, \
+    bilibiliImgDownloadService
 
 
 # 自动获取用户信息
@@ -42,3 +43,13 @@ def autoGetUserVideo(request):
             if uid is None:
                 return HttpResponse('请输入name或uid')
         return HttpResponse(bilibiliVideoService.autoGetUserVideo(uid, to_db))
+
+
+# 自动获取图片
+def autoGetImg(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        filter_obj = body.get('dynamic_param', None)
+        if filter_obj is None:
+            return HttpResponse("filter_obj不能为空！")
+        return HttpResponse(bilibiliImgDownloadService.auto_get_img(**filter_obj))

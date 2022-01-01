@@ -20,7 +20,7 @@ import threading
 
 
 def multithreading_list(arrayList, function, params=None, thread_num=0):
-    statusInfo = {'count': 0, 'exist': 0, 'fail': 0}
+    statusInfo = {'count': 0, 'exist': 0, 'success': 0, 'fail': 0}
     count = len(arrayList)
     statusInfo['count'] = count
     if thread_num == 0:
@@ -61,6 +61,8 @@ def loopFunction(*loopFunctionParams):
             code = function(*finalParams)
             if code == 'exist':
                 statusInfo['exist'] += 1
+            elif code == 'success':
+                statusInfo['success'] += 1
             elif code == 'fail':
                 statusInfo['fail'] += 1
             data = arrayList.pop()

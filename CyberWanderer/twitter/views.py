@@ -3,10 +3,11 @@ import json
 
 from django.http import HttpResponse
 from .service import twitterUserService, userTweetsService, twitterRequestService, searchTweetsService, \
-    userImgDownloadService, showTweetsService
+    twitterImgDownloadService, showTweetsService
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 # 更换token
 def changeToken(request):
@@ -87,13 +88,13 @@ def autoGetUserSearchTweets(request):
 
 
 # 自动获取图片
-def autoGetUserImg(request):
+def autoGetImg(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         filter_obj = body.get('tweets_param', None)
         if filter_obj is None:
             return HttpResponse("filter_obj不能为空！")
-        return HttpResponse(userImgDownloadService.auto_get_user_img(**filter_obj))
+        return HttpResponse(twitterImgDownloadService.auto_get_img(**filter_obj))
 
 
 # 展示推文数据

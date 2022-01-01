@@ -10,5 +10,7 @@ urlpatterns = [
     path('autoGetUserDynamic', autoGetUserDynamic),
     # 自动获取用户所有视频信息
     path('autoGetUserVideo', autoGetUserVideo),
+    # 自动获取图片
+    path('autoGetImg', autoGetImg),
     # path('',),
 ]

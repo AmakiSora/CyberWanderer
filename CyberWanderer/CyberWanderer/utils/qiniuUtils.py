@@ -31,7 +31,7 @@ def download_file_qiniu(url, file_name='', bucket_name='default-0', isProxy=Fals
             try:
                 re, info = qiniu.put_data(token, file_name, data=r.content)
                 logger.info(str("上传到云成功,url:" + str(url)))
-                return '1'
+                return 'success'
             except:
                 logger.warning(str("上传到云失败,url:" + str(url)))
                 return 'fail'
@@ -63,7 +63,8 @@ def upload_file_qiniu(local_url, file_name='', bucket_name='default-0'):
     if re is None:
         logger.info(str('上传失败!url:' + str(local_url)))
         return 'fail'
-    return '上传成功!url:' + local_url
+    logger.info('上传成功!url:' + local_url)
+    return 'success'
 
 
 # 本地文件夹上传到云(多线程)
@@ -80,6 +81,7 @@ def upload_folder_qiniu(folder_name, bucket_name='default-0'):
         elif code == 200:
             return '总共' + str(statusInfo.get('count')) + '张图片!' + \
                    '已存在' + str(statusInfo.get('exist')) + '张图片!' + \
+                   '上传成功' + str(statusInfo.get('success')) + '张图片!' + \
                    '上传失败' + str(statusInfo.get('fail')) + '张图片!'
 
 
