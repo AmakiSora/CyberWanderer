@@ -50,15 +50,16 @@ def autoGetUserTweets(user_id, count=20, to_db=True, frequency=1, updateTweet=Fa
     tweets_json = getTweets(user_id, count)
     if tweets_json is None:
         return '错误！'
-    cursor_bottom = analyzeUserTweets(tweets_json, to_db, updateTweet)
+    cursor_bottom, tweetNum = analyzeUserTweets(tweets_json, to_db, updateTweet)
+    allTweetNum = tweetNum
     if frequency > 1:
         for i in range(frequency):
             tweets_json = getTweets(user_id, count, cursor_bottom)
             if cursor_bottom is None:
-                return tweets_json
-            cursor_bottom = analyzeUserTweets(tweets_json, to_db, updateTweet)
-
-    return tweets_json
+                return '共获取 ' + str(allTweetNum) + ' 条推文'
+            cursor_bottom, tweetNum = analyzeUserTweets(tweets_json, to_db, updateTweet)
+            allTweetNum += tweetNum
+    return '共获取 ' + str(allTweetNum) + ' 条推文'
 
 
 # 分析用户推文
@@ -69,10 +70,10 @@ def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
     # instructions = tweets_json['data']['user']['result']['timeline']['timeline'].get('instructions', None)
     instructions = jsonpath.jsonpath(tweets_json, "$.data.user.result.timeline.timeline.instructions")
     if not instructions:
-        return None
+        return None, 0
+    tweetNum = 0  # 记录推文数,也是终止标签,如果无后续推文,直接终止循环
     for i in instructions[0]:
         if i['type'] == 'TimelineAddEntries':  # 推文列
-            tweetNum = 0  # 记录推文数,也是终止标签,如果无后续推文,直接终止循环
             tweets = []
             for e in i.get('entries'):
                 entryId = e.get('entryId')
@@ -103,11 +104,11 @@ def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
             if updateTweet:
                 Tweet.objects.bulk_update(tweets, ['name', 'full_text'])  # 批量更新,(一般没什么用,因为推特禁止编辑推文)
             if tweetNum == 0:  # 表示后面没有推文了
-                return None
+                return None, tweetNum
         elif i['type'] == 'TimelinePinEntry':  # 置顶推文
             pass
             # print("置顶推文,暂时不处理")
-    return cursor_bottom
+    return cursor_bottom, tweetNum
 
 
 # 分析推文具体信息
@@ -171,5 +172,8 @@ def analyzeTweetsResultJSON(result, tweet, tweets, to_db=True):
 # 更新推文数
 def updateTweetCount(username):
     t = TwitterUser.objects.get(username=username)
-    t.tweet_count = Tweet.objects.filter(username=username).count()
+    oldCount = t.tweet_count
+    newCount = Tweet.objects.filter(username=username).count()
+    t.tweet_count = newCount
     t.save()
+    return oldCount, newCount

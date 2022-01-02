@@ -21,8 +21,10 @@ def autoGetUserVideo(uid, to_db=True):
         logger.info(data_json)
         has_more = analyzeUserVideo(data_json, to_db)
         page += 1
-    updateVideoCount(uid)
-    return '获取成功'
+    oldCount, newCount = updateVideoCount(uid)
+    return 'uid: ' + str(uid) + \
+           ' 新增 ' + str(newCount - oldCount) + ' 条投稿信息!' + \
+           ' 总共 ' + str(newCount) + ' 条投稿信息!'
 
 
 # 获取视频信息
@@ -82,5 +84,8 @@ def analyzeUserVideo(data_json, to_db):
 # 更新投稿数
 def updateVideoCount(uid):
     t = BiliBiliUser.objects.get(uid=uid)
-    t.video_count = BiliBiliVideo.objects.filter(uid=uid).count()
+    oldCount = t.video_count
+    newCount = BiliBiliVideo.objects.filter(uid=uid).count()
+    t.video_count = newCount
     t.save()
+    return oldCount, newCount

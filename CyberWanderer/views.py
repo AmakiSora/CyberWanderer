@@ -3,6 +3,6 @@ from django.http import HttpResponse
 
 
 def page_hello(request):
-    html = 'This is CyberWanderer V1.9.8'
+    html = 'This is CyberWanderer V2.0.1'
     return HttpResponse(html)
 

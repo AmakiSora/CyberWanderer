@@ -24,7 +24,9 @@ def multithreading_list(arrayList, function, params=None, thread_num=0):
     count = len(arrayList)
     statusInfo['count'] = count
     if thread_num == 0:
-        if count > 500:
+        if count > 1000:
+            thread_num = 50
+        elif count > 500:
             thread_num = 30
         elif count > 100:
             thread_num = 10

@@ -38,8 +38,8 @@ def getUserInfo(username):
 # 自动化
 def autoGetUserInfo(username, to_db):
     info_json = getUserInfo(username)
-    analyzeUserInfo(info_json, to_db)
-    return info_json
+    re = analyzeUserInfo(info_json, to_db)
+    return re
 
 
 # 分析用户json信息
@@ -74,3 +74,4 @@ def analyzeUserInfo(info_json, to_db):
         logger.info(str(str(user.username) + "加入数据库"))
     else:
         logger.info(user.__str__())
+    return '用户名: @' + user.username + ' ,昵称: ' + user.name

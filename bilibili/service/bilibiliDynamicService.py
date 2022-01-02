@@ -21,11 +21,15 @@ def autoGetUserDynamic(uid, to_db=True, frequency=1):
             data_json = getUserDynamic(uid, next_offset)
             # 无后续或出错!
             if has_more != 1:
-                updateDynamicCount(uid)
-                return next_offset
+                oldCount, newCount = updateDynamicCount(uid)
+                return 'uid: ' + str(uid) + \
+                       ' 新增 ' + str(newCount - oldCount) + ' 条动态!' + \
+                       ' 总共 ' + str(newCount) + ' 条动态!'
             has_more, next_offset = analyzeUserDynamic(data_json, to_db)
-    updateDynamicCount(uid)
-    return '获取完成!'
+    oldCount, newCount = updateDynamicCount(uid)
+    return 'uid: ' + str(uid) + \
+           ' 新增 ' + str(newCount - oldCount) + ' 条动态!' + \
+           ' 总共 ' + str(newCount) + ' 条动态!'
 
 
 # 获取动态json
@@ -173,5 +177,8 @@ def getQuotedDynamic(origin, card, dynamic_type):
 # 更新动态数
 def updateDynamicCount(uid):
     t = BiliBiliUser.objects.get(uid=uid)
-    t.dynamic_count = BiliBiliDynamic.objects.filter(uid=uid).count()
+    oldCount = t.dynamic_count
+    newCount = BiliBiliDynamic.objects.filter(uid=uid).count()
+    t.dynamic_count = newCount
     t.save()
+    return oldCount, newCount
