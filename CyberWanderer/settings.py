@@ -182,6 +182,9 @@ LOGGING = {
     },
 }
 
+# 下载文件位置
+DOWNLOAD_PATH = parser.get('main', 'downloadPath')
+
 # 代理设置
 PROXIES = {
     'http': parser.get('proxies', 'http'),

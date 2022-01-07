@@ -121,6 +121,7 @@ def batchUpdateTweets(request):
         elif type(usernameList) is not list:
             return HttpResponse("参数需要为列表！")
         logger.info(usernameList)
+        updateNum = 0
         for username in usernameList:
             rest_id = twitterUserService.getRestIdByUsername(username)
             if rest_id is None:
@@ -128,5 +129,7 @@ def batchUpdateTweets(request):
                 continue
             logger.info("更新用户" + username + "的推文")
             userTweetsService.autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
-            userTweetsService.updateTweetCount(username)
-        return HttpResponse("更新完成！")
+            oldCount, newCount = userTweetsService.updateTweetCount(username)
+            logger.info('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条推文,现存 ' + str(newCount) + ' 条推文！')
+            updateNum += (newCount - oldCount)
+        return HttpResponse("更新完成！共更新了 " + str(updateNum) + ' 条推文！')

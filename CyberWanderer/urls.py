@@ -20,6 +20,7 @@ from .views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('hello/', page_hello),
+    path('youGet/', get_resource),
     path('twitter/', include('twitter.urls')),
     path('translate/', include('translate.urls')),
     path('bilibili/', include('bilibili.urls'))
