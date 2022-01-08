@@ -7,6 +7,7 @@ import logging
 
 import requests
 
+from CyberWanderer.utils import downloadUtils
 from bilibili.models import BiliBiliVideo, BiliBiliUser
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,7 @@ def getVideoInfo(uid, page):
     return None
 
 
+# 解析json
 def analyzeUserVideo(data_json, to_db):
     if data_json.get('code') != 0:
         return 0, '没有获取到视频信息!'
@@ -89,3 +91,9 @@ def updateVideoCount(uid):
     t.video_count = newCount
     t.save()
     return oldCount, newCount
+
+
+# 下载视频(you-get)
+def downloadVideo(bv, file_name, folder_name, proxy):
+    url = 'https://www.bilibili.com/video/' + bv
+    downloadUtils.download_file_local(url, file_name, folder_name, proxy)

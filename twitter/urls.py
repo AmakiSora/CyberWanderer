@@ -21,7 +21,8 @@ urlpatterns = [
     # 展示推文数据
     path('showTweets', showTweets),
     # 更新多用户推文
-    path('batchUpdateTweets', batchUpdateTweets)
-    #
+    path('batchUpdateTweets', batchUpdateTweets),
+    # 下载视频至本地
+    path('downloadVideo', downloadVideo),
     # path('',),
 ]

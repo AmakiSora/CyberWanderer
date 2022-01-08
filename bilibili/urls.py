@@ -12,5 +12,7 @@ urlpatterns = [
     path('autoGetUserVideo', autoGetUserVideo),
     # 自动获取图片
     path('autoGetImg', autoGetImg),
+    # 下载视频至本地
+    path('downloadVideo', downloadVideo),
     # path('',),
 ]

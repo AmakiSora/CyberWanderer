@@ -1,6 +1,9 @@
 """
     用户推文图片下载服务
 """
+import json
+
+from CyberWanderer.utils import downloadUtils
 from CyberWanderer.utils.qiniuUtils import download_file_qiniu
 from CyberWanderer.utils.threadUtil import multithreading_list
 from twitter.models import Tweet
@@ -29,3 +32,9 @@ def auto_get_img(**filter_obj):
                '已存在' + str(statusInfo.get('exist')) + '张图片!' + \
                '上传成功' + str(statusInfo.get('success')) + '张图片!' + \
                '上传失败' + str(statusInfo.get('fail')) + '张图片!'
+
+
+# 下载推文视频
+def downloadVideo(id, file_name, folder_name, proxy):
+    url = 'https://twitter.com/i/status/' + id
+    downloadUtils.download_file_local(url, file_name, folder_name, proxy)

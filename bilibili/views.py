@@ -53,3 +53,16 @@ def autoGetImg(request):
         if filter_obj is None:
             return HttpResponse("filter_obj不能为空！")
         return HttpResponse(bilibiliImgDownloadService.auto_get_img(**filter_obj))
+
+
+# 下载b站视频
+def downloadVideo(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        bv = body.get('bv', None)
+        if bv is None:
+            return HttpResponse("bv不能为空！")
+        file_name = body.get('file_name', None)
+        folder_name = body.get('folder_name', None)
+        proxy = body.get('proxy', False)
+        return HttpResponse(bilibiliVideoService.downloadVideo(bv, file_name, folder_name, proxy))

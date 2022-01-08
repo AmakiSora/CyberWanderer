@@ -3,7 +3,7 @@ import json
 
 from django.http import HttpResponse
 from .service import twitterUserService, userTweetsService, twitterRequestService, searchTweetsService, \
-    twitterImgDownloadService, showTweetsService
+    twitterDownloadService, showTweetsService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -133,3 +133,16 @@ def batchUpdateTweets(request):
             logger.info('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条推文,现存 ' + str(newCount) + ' 条推文！')
             updateNum += (newCount - oldCount)
         return HttpResponse("更新完成！共更新了 " + str(updateNum) + ' 条推文！')
+
+
+# 下载推文视频
+def downloadVideo(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        id = body.get('id', None)
+        if id is None:
+            return HttpResponse("id不能为空！")
+        file_name = body.get('file_name', None)
+        folder_name = body.get('folder_name', None)
+        proxy = body.get('proxy', False)
+        return HttpResponse(twitterDownloadService.downloadVideo(id, file_name, folder_name, proxy))
