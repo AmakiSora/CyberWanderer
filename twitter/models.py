@@ -26,7 +26,8 @@ class TwitterUser(models.Model):
     username = models.CharField('用户名', max_length=255, default='')
     rest_id = models.CharField('rest_id', max_length=255, default='')
     user_id = models.CharField('用户名', max_length=255, primary_key=True, null=False)
-    created_at = models.CharField('帐号创建时间', max_length=255, default='')
+    created_at = models.CharField('帐号创建时间str', max_length=255, default='')
+    created_time = models.DateTimeField('创建时间', null=True)
     birthday = models.CharField('生日', max_length=255, default='')
     description = models.CharField('简介', max_length=1023, default='')
     friends_count = models.IntegerField('正在关注', default=-1)
@@ -34,3 +35,5 @@ class TwitterUser(models.Model):
     location = models.CharField('地点', max_length=255, default='')
     display_url = models.CharField('展示链接', max_length=255, default='')
     tweet_count = models.IntegerField('推文数', default=0)
+    status = models.CharField('状态', max_length=255, default='')
+

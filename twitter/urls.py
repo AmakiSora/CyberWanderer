@@ -22,6 +22,8 @@ urlpatterns = [
     path('showTweets', showTweets),
     # 更新多用户推文
     path('batchUpdateTweets', batchUpdateTweets),
+    # 更新多用户推文
+    path('batchUpdateTwitterUserInfo', batchUpdateTwitterUserInfo),
     # 下载视频至本地
     path('downloadVideo', downloadVideo),
     # path('',),

@@ -96,7 +96,7 @@ def autoGetImg(request):
         filter_obj = body.get('tweets_param', None)
         if filter_obj is None:
             return HttpResponse("filter_obj不能为空！")
-        return HttpResponse(twitterImgDownloadService.auto_get_img(**filter_obj))
+        return HttpResponse(twitterDownloadService.auto_get_img(**filter_obj))
 
 
 # 展示推文数据
@@ -133,6 +133,16 @@ def batchUpdateTweets(request):
             logger.info('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条推文,现存 ' + str(newCount) + ' 条推文！')
             updateNum += (newCount - oldCount)
         return HttpResponse("更新完成！共更新了 " + str(updateNum) + ' 条推文！')
+
+
+# 批量更新用户信息
+def batchUpdateTwitterUserInfo(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        filter_obj = body.get('twitter_user_param', None)
+        if filter_obj is None:
+            return HttpResponse("twitter_user_param不能为空！")
+        return HttpResponse(twitterUserService.updateTwitterUserInfo(**filter_obj))
 
 
 # 下载推文视频

@@ -96,4 +96,4 @@ def updateVideoCount(uid):
 # 下载视频(you-get)
 def downloadVideo(bv, file_name, folder_name, proxy):
     url = 'https://www.bilibili.com/video/' + bv
-    downloadUtils.download_file_local(url, file_name, folder_name, proxy)
+    return downloadUtils.download_file_local(url, file_name, folder_name, proxy)

@@ -1,8 +1,11 @@
+import datetime
 import logging
 
 from twitter.models import Tweet, TwitterUser
 from .twitterRequestService import *
 import logging
+
+from .userTweetsService import updateTweetCount
 
 '''
     推特用户服务
@@ -64,6 +67,7 @@ def analyzeUserInfo(info_json, to_db):
     user.name = legacy_json.get('name')  # 名称
     user.username = legacy_json.get('screen_name')  # 唯一用户名
     user.created_at = legacy_json.get('created_at')  # 帐号创建时间
+    user.created_time = datetime.datetime.strptime(user.created_at, '%a %b %d %H:%M:%S +0000 %Y')
     user.description = legacy_json.get('description')  # 简介
     user.display_url = legacy_json.get('url', '')  # 展示链接
     user.location = legacy_json.get('location')  # 地点
@@ -72,6 +76,17 @@ def analyzeUserInfo(info_json, to_db):
     if to_db:  # 存入数据库
         user.save()
         logger.info(str(str(user.username) + "加入数据库"))
+        updateTweetCount(user.username)
     else:
         logger.info(user.__str__())
     return '用户名: @' + user.username + ' ,昵称: ' + user.name
+
+
+def updateTwitterUserInfo(**filter_obj):
+    twitter_users = TwitterUser.objects.filter(**filter_obj)
+    if twitter_users.count() == 0:
+        return '未找到筛选的用户!!!'
+    for info in twitter_users:
+        re = autoGetUserInfo(info.username, True)
+        logger.info(re)
+    return '共更新了 ' + str(twitter_users.count()) + ' 个推特用户信息'

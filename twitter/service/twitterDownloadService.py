@@ -37,4 +37,4 @@ def auto_get_img(**filter_obj):
 # 下载推文视频
 def downloadVideo(id, file_name, folder_name, proxy):
     url = 'https://twitter.com/i/status/' + id
-    downloadUtils.download_file_local(url, file_name, folder_name, proxy)
+    return downloadUtils.download_file_local(url, file_name, folder_name, proxy)
