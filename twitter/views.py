@@ -116,23 +116,16 @@ def batchUpdateTweets(request):
         to_db = body.get('to_db', True)  # 是否入库
         updateTweet = body.get('updateTweet', False)  # 是否更新
         frequency = body.get('frequency', 20)  # 循环次数
+        threads = body.get('threads', False)  # 循环次数
         if usernameList is None:
             return HttpResponse("名单列表不能为空！")
         elif type(usernameList) is not list:
             return HttpResponse("参数需要为列表！")
         logger.info(usernameList)
-        updateNum = 0
-        for username in usernameList:
-            rest_id = twitterUserService.getRestIdByUsername(username)
-            if rest_id is None:
-                logger.info(username + '在数据库中不存在!')
-                continue
-            logger.info("更新用户" + username + "的推文")
-            userTweetsService.autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
-            oldCount, newCount = userTweetsService.updateTweetCount(username)
-            logger.info('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条推文,现存 ' + str(newCount) + ' 条推文！')
-            updateNum += (newCount - oldCount)
-        return HttpResponse("更新完成！共更新了 " + str(updateNum) + ' 条推文！')
+        if threads:
+            return HttpResponse(userTweetsService.batchUpdateTweetsThreads(usernameList, count, to_db, frequency, updateTweet))
+        else:
+            return HttpResponse(userTweetsService.batchUpdateTweets(usernameList, count, to_db, frequency, updateTweet))
 
 
 # 批量更新用户信息

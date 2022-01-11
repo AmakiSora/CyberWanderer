@@ -6,7 +6,9 @@ import jsonpath as jsonpath
 import requests
 
 from CyberWanderer import settings
+from CyberWanderer.utils.threadUtil import multithreading_list
 from twitter.models import Tweet, TwitterUser
+from twitter.service import twitterUserService
 from twitter.service.twitterRequestService import get_token, headers, get_headers
 import logging
 
@@ -177,3 +179,42 @@ def updateTweetCount(username):
     t.tweet_count = newCount
     t.save()
     return oldCount, newCount
+
+
+# 批量更新用户推文(单线程)
+def batchUpdateTweets(usernameList, count, to_db, frequency, updateTweet):
+    updateNum = 0
+    for username in usernameList:
+        rest_id = twitterUserService.getRestIdByUsername(username)
+        if rest_id is None:
+            logger.info(username + '在数据库中不存在!')
+            continue
+        logger.info("更新用户" + username + "的推文")
+        autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
+        oldCount, newCount = updateTweetCount(username)
+        logger.info('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条推文,现存 ' + str(newCount) + ' 条推文！')
+        updateNum += (newCount - oldCount)
+    return "更新完成！共更新了 " + str(updateNum) + ' 条推文！'
+
+
+# 批量更新用户推文(多线程)
+def batchUpdateTweetsThreads(usernameList, count, to_db, frequency, updateTweet):
+    code, statusInfo = multithreading_list(usernameList, batchUpdateTweetsThreadFunction, (count, to_db, frequency, updateTweet))
+    if code == 0:
+        return "无图片上传!"
+    elif code == 200:
+        return '总共' + str(statusInfo.get('count')) + '个用户!' + \
+               '成功更新了' + str(statusInfo.get('success')) + '个用户!'
+
+
+# 多线程处理方法
+def batchUpdateTweetsThreadFunction(username, count, to_db, frequency, updateTweet):
+    rest_id = twitterUserService.getRestIdByUsername(username)
+    if rest_id is None:
+        logger.info(username + '在数据库中不存在!')
+        return 'fail'
+    logger.info("更新用户" + username + "的推文")
+    autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
+    oldCount, newCount = updateTweetCount(username)
+    logger.info('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条推文,现存 ' + str(newCount) + ' 条推文！')
+    return 'success'
