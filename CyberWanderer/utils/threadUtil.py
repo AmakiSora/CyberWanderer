@@ -12,16 +12,20 @@ import threading
         3.本函数有两个返回值,
             第一个返回值为0表示数组为空,为200表示成功,
             第二个返回值是statusInfo,可以对数据进行统计
-        4.statusInfo里有三个参数,分别是数组的总数,已存在不用处理的数量,处理失败的数量
-            第一个参数为数组的总数
-            第二个参数,处理函数返回'exist'字段,就能+1计数
-            第三个参数,处理函数返回'fail'字段,就能+1计数
+        4.statusInfo为字典,里面的参数可自定义,需要函数返回key,value
+            如果key为None,无事发生
+            如果key不为空
+                value为空,且key原本不存在,value默认为1
+                value为空,且key原本存在,且value为int,value += 1
+                value不为空,则新增或修改该key,值为value
 """
 
 
 def multithreading_list(arrayList, function, params=None, thread_num=0):
-    statusInfo = {'count': 0, 'exist': 0, 'success': 0, 'fail': 0}
+    statusInfo = {}
     count = len(arrayList)
+    for i in arrayList:
+        print(i)
     statusInfo['count'] = count
     if thread_num == 0:
         if count > 1000:
@@ -60,13 +64,18 @@ def loopFunction(*loopFunctionParams):
                 finalParams = [data]
             else:
                 finalParams = [data, *params]
-            code = function(*finalParams)
-            if code == 'exist':
-                statusInfo['exist'] += 1
-            elif code == 'success':
-                statusInfo['success'] += 1
-            elif code == 'fail':
-                statusInfo['fail'] += 1
             data = arrayList.pop()
+            key, value = function(*finalParams)
+            print(key)
+            print(value)
+            if key is None:
+                return
+            if value:
+                statusInfo[key] = value
+            else:
+                if not statusInfo.get(key):
+                    statusInfo[key] = 0
+                if type(statusInfo[key]) is int:
+                    statusInfo[key] += 1
     except:
         return

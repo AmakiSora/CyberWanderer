@@ -7,7 +7,7 @@ from CyberWanderer.utils import downloadUtils
 
 
 def page_hello(request):
-    html = 'This is CyberWanderer V2.0.4'
+    html = 'This is CyberWanderer V2.0.5'
     return HttpResponse(html)
 
 
