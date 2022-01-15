@@ -24,8 +24,6 @@ import threading
 def multithreading_list(arrayList, function, params=None, thread_num=0):
     statusInfo = {}
     count = len(arrayList)
-    for i in arrayList:
-        print(i)
     statusInfo['count'] = count
     if thread_num == 0:
         if count > 1000:
@@ -34,10 +32,12 @@ def multithreading_list(arrayList, function, params=None, thread_num=0):
             thread_num = 30
         elif count > 100:
             thread_num = 10
+        elif count > 20:
+            thread_num = 5
         elif count > 5:
             thread_num = 3
         elif count > 0:
-            thread_num = 1
+            thread_num = 2
         else:
             return 0, statusInfo
     threads = []
@@ -64,12 +64,9 @@ def loopFunction(*loopFunctionParams):
                 finalParams = [data]
             else:
                 finalParams = [data, *params]
-            data = arrayList.pop()
             key, value = function(*finalParams)
-            print(key)
-            print(value)
             if key is None:
-                return
+                continue
             if value:
                 statusInfo[key] = value
             else:
@@ -77,5 +74,6 @@ def loopFunction(*loopFunctionParams):
                     statusInfo[key] = 0
                 if type(statusInfo[key]) is int:
                     statusInfo[key] += 1
+            data = arrayList.pop()
     except:
         return

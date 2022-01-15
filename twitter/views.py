@@ -116,7 +116,7 @@ def batchUpdateTweets(request):
         to_db = body.get('to_db', True)  # 是否入库
         updateTweet = body.get('updateTweet', False)  # 是否更新
         frequency = body.get('frequency', 20)  # 循环次数
-        threads = body.get('threads', False)  # 循环次数
+        threads = body.get('threads', False)  # 多线程
         if usernameList is None:
             return HttpResponse("名单列表不能为空！")
         elif type(usernameList) is not list:

@@ -3,6 +3,9 @@ import json
 from django.http import HttpResponse
 from bilibili.service import bilibiliUserService, bilibiliDynamicService, bilibiliVideoService, \
     bilibiliImgDownloadService
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # 自动获取用户信息
@@ -53,6 +56,37 @@ def autoGetImg(request):
         if filter_obj is None:
             return HttpResponse("filter_obj不能为空！")
         return HttpResponse(bilibiliImgDownloadService.auto_get_img(**filter_obj))
+
+
+# 更新多用户动态
+def batchUpdateDynamic(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        usernameList = body.get('usernameList', None)
+        to_db = body.get('to_db', True)  # 是否入库
+        updateDynamic = body.get('updateDynamic', False)  # 是否更新
+        frequency = body.get('frequency', 20)  # 循环次数
+        threads = body.get('threads', False)  # 多线程
+        if usernameList is None:
+            return HttpResponse("名单列表不能为空！")
+        elif type(usernameList) is not list:
+            return HttpResponse("参数需要为列表！")
+        logger.info(usernameList)
+        if threads:
+            return HttpResponse(
+                bilibiliDynamicService.batchUpdateDynamicThreads(usernameList, to_db, frequency))
+        else:
+            return HttpResponse('233')
+
+
+# 批量更新用户信息
+def batchUpdateBiliBiliUserInfo(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        filter_obj = body.get('twitter_user_param', None)
+        if filter_obj is None:
+            return HttpResponse("twitter_user_param不能为空！")
+        return HttpResponse(twitterUserService.updateTwitterUserInfo(**filter_obj))
 
 
 # 下载b站视频

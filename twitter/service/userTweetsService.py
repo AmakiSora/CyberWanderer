@@ -202,7 +202,7 @@ def batchUpdateTweetsThreads(usernameList, count, to_db, frequency, updateTweet)
     code, statusInfo = multithreading_list(usernameList, batchUpdateTweetsThreadFunction,
                                            (count, to_db, frequency, updateTweet))
     if code == 0:
-        return "无图片上传!"
+        return "无!"
     elif code == 200:
         return '总共' + str(statusInfo.get('count', 0)) + '个用户!' + \
                '成功更新了' + str(statusInfo.get('success', 0)) + '个用户!'

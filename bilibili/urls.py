@@ -12,6 +12,10 @@ urlpatterns = [
     path('autoGetUserVideo', autoGetUserVideo),
     # 自动获取图片
     path('autoGetImg', autoGetImg),
+    # 更新多用户动态
+    path('batchUpdateDynamic', batchUpdateDynamic),
+    # 更新多用户信息
+    path('batchUpdateBiliBiliUserInfo', batchUpdateBiliBiliUserInfo),
     # 下载视频至本地
     path('downloadVideo', downloadVideo),
     # path('',),

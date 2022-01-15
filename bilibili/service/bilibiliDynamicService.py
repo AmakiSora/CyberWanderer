@@ -7,12 +7,14 @@ import json
 import requests
 import logging
 
+from CyberWanderer.utils.threadUtil import multithreading_list
 from bilibili.models import BiliBiliDynamic, BiliBiliUser
+from bilibili.service import bilibiliUserService
 
 logger = logging.getLogger(__name__)
 
 
-# 自动获取b用户信息(优先搜索uid)
+# 自动获取b用户动态(优先搜索uid)
 def autoGetUserDynamic(uid, to_db=True, frequency=1):
     data_json = getUserDynamic(uid)
     has_more, next_offset = analyzeUserDynamic(data_json, to_db)
@@ -172,6 +174,30 @@ def getQuotedDynamic(origin, card, dynamic_type):
         logger.warning(card)
         qd.full_text = card
     return qd
+
+
+# 批量更新用户动态(多线程)
+def batchUpdateDynamicThreads(usernameList, to_db, frequency):
+    code, statusInfo = multithreading_list(usernameList, batchUpdateDynamicThreadFunction,
+                                           (to_db, frequency))
+    if code == 0:
+        return "无!"
+    elif code == 200:
+        return '总共' + str(statusInfo.get('count', 0)) + '个用户!' + \
+               '成功更新了' + str(statusInfo.get('success', 0)) + '个用户!'
+
+
+# 多线程处理方法
+def batchUpdateDynamicThreadFunction(username, to_db, frequency):
+    uid = bilibiliUserService.getUidByName(username)
+    if uid is None:
+        logger.info(username + '在数据库中不存在!')
+        return 'fail', None
+    logger.info("更新用户" + username + "的推文")
+    re = autoGetUserDynamic(uid, to_db, frequency)
+    oldCount, newCount = updateDynamicCount(uid)
+    logger.info('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条动态,现存 ' + str(newCount) + ' 条动态！')
+    return 'success', None
 
 
 # 更新动态数
