@@ -75,7 +75,6 @@ def analyzeUserInfo(info_json, to_db):
     user.friends_count = legacy_json.get('friends_count')  # 正在关注
     if to_db:  # 存入数据库
         user.save()
-        logger.info(str(str(user.username) + "加入数据库"))
         updateTweetCount(user.username)
     else:
         logger.info(user.__str__())
@@ -86,7 +85,9 @@ def updateTwitterUserInfo(**filter_obj):
     twitter_users = TwitterUser.objects.filter(**filter_obj)
     if twitter_users.count() == 0:
         return '未找到筛选的用户!!!'
+    msg = '共更新了 ' + str(twitter_users.count()) + ' 个推特用户信息!\n'
     for info in twitter_users:
         re = autoGetUserInfo(info.username, True)
+        msg += re + '\n'
         logger.info(re)
-    return '共更新了 ' + str(twitter_users.count()) + ' 个推特用户信息'
+    return msg

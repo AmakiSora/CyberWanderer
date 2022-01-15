@@ -13,6 +13,8 @@ class BiliBiliUser(models.Model):
     followers_count = models.IntegerField('关注者', default=-1)
     dynamic_count = models.IntegerField('动态数', default=0)
     video_count = models.IntegerField('视频数', default=0)
+    status = models.CharField('状态', max_length=255, default='')
+
 
 
 # 动态信息

@@ -183,8 +183,11 @@ def batchUpdateDynamicThreads(usernameList, to_db, frequency):
     if code == 0:
         return "无!"
     elif code == 200:
-        return '总共' + str(statusInfo.get('count', 0)) + '个用户!' + \
-               '成功更新了' + str(statusInfo.get('success', 0)) + '个用户!'
+        re = '总共' + str(statusInfo.get('count', 0)) + '个用户!\n'
+        for i in statusInfo:
+            if i != 'count':
+                re += statusInfo[i]+'\n'
+        return re
 
 
 # 多线程处理方法
@@ -197,7 +200,7 @@ def batchUpdateDynamicThreadFunction(username, to_db, frequency):
     re = autoGetUserDynamic(uid, to_db, frequency)
     oldCount, newCount = updateDynamicCount(uid)
     logger.info('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条动态,现存 ' + str(newCount) + ' 条动态！')
-    return 'success', None
+    return username, re
 
 
 # 更新动态数

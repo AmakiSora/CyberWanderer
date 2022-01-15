@@ -9,6 +9,8 @@ import requests
 from bilibili.models import BiliBiliUser
 import logging
 
+from bilibili.service import bilibiliDynamicService, bilibiliVideoService
+
 logger = logging.getLogger(__name__)
 
 
@@ -71,6 +73,8 @@ def analyzeUserInfo(info_json, to_db):
         logger.info(str(user.level))
         logger.info(str(user.friends_count))
         logger.info(str(user.followers_count))
+    bilibiliDynamicService.updateDynamicCount(uid)
+    bilibiliVideoService.updateVideoCount(uid)
     return 'uid : ' + str(uid) + ', up : ' + user.name
 
 
@@ -81,3 +85,15 @@ def getUidByName(name):
     except:
         return None
     return uid
+
+
+def updateBiliBiliUserInfo(**filter_obj):
+    bilibili_users = BiliBiliUser.objects.filter(**filter_obj)
+    if bilibili_users.count() == 0:
+        return '未找到筛选的用户!!!'
+    msg = '共更新了 ' + str(bilibili_users.count()) + ' 个用户信息\n'
+    for info in bilibili_users:
+        re = autoGetUserInfo(info.uid, True)
+        msg += re + '\n'
+        logger.info(re)
+    return msg

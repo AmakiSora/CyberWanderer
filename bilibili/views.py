@@ -64,7 +64,6 @@ def batchUpdateDynamic(request):
         body = json.loads(request.body)
         usernameList = body.get('usernameList', None)
         to_db = body.get('to_db', True)  # 是否入库
-        updateDynamic = body.get('updateDynamic', False)  # 是否更新
         frequency = body.get('frequency', 20)  # 循环次数
         threads = body.get('threads', False)  # 多线程
         if usernameList is None:
@@ -83,10 +82,10 @@ def batchUpdateDynamic(request):
 def batchUpdateBiliBiliUserInfo(request):
     if request.method == 'POST':
         body = json.loads(request.body)
-        filter_obj = body.get('twitter_user_param', None)
+        filter_obj = body.get('bilibili_user_param', None)
         if filter_obj is None:
-            return HttpResponse("twitter_user_param不能为空！")
-        return HttpResponse(twitterUserService.updateTwitterUserInfo(**filter_obj))
+            return HttpResponse("bilibili_user_param不能为空！")
+        return HttpResponse(bilibiliUserService.updateBiliBiliUserInfo(**filter_obj))
 
 
 # 下载b站视频

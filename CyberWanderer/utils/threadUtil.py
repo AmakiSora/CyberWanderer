@@ -26,18 +26,15 @@ def multithreading_list(arrayList, function, params=None, thread_num=0):
     count = len(arrayList)
     statusInfo['count'] = count
     if thread_num == 0:
-        if count > 1000:
-            thread_num = 50
-        elif count > 500:
-            thread_num = 30
-        elif count > 100:
-            thread_num = 10
-        elif count > 20:
-            thread_num = 5
-        elif count > 5:
-            thread_num = 3
-        elif count > 0:
-            thread_num = 2
+        # 每条线程处理的数据量
+        per_thread_processing_num = 3
+        if count <= per_thread_processing_num:
+            thread_num = 1
+        elif count > per_thread_processing_num:
+            thread_num = int(count / per_thread_processing_num)
+            # 线程上限
+            if thread_num > 50:
+                thread_num = 50
         else:
             return 0, statusInfo
     threads = []
