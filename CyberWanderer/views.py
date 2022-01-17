@@ -5,9 +5,17 @@ from django.http import HttpResponse
 
 from CyberWanderer.utils import downloadUtils
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def page_hello(request):
-    html = 'This is CyberWanderer V2.0.5'
+    html = 'This is CyberWanderer V2.0.9'
+    logger.info("233")
+    logger.error("233")
+    logger.debug("233")
+    logger.warning("233")
     return HttpResponse(html)
 
 
