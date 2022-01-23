@@ -172,12 +172,24 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+        'red': {
+            'format': '\033[0;31m {message} \033[0m',
             'style': '{',
         },
-        'simple': {
-            'format': '\033[0;32m {message} \033[0m',
+        'green': {
+            'format': '\033[1;32m {message} \033[0m',
+            'style': '{',
+        },
+        'yellow': {
+            'format': '\033[0;33m {message} \033[0m',
+            'style': '{',
+        },
+        'blue': {
+            'format': '\033[0;34m {message} \033[0m',
+            'style': '{',
+        },
+        'purple': {
+            'format': '\033[0;35m {message} \033[0m',
             'style': '{',
         },
     },
@@ -185,18 +197,24 @@ LOGGING = {
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': 'green',
         },
-        'console1': {
-            'level': 'ERROR',
+        'system_log': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'purple'
         },
     },
     'root': {
-        'handlers': ['console','console1'],
+        'handlers': ['console'],
         'level': 'INFO',
     },
+    'loggers': {
+        'django': {
+            'handlers': ['system_log'],
+            # 是否传递记录给下一级处理(系统层面)
+            'propagate': False,
+        }
+    }
 }
 
 # 下载文件位置

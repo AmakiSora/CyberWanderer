@@ -2,10 +2,12 @@
     搜索推特推文服务
     可搜到历史信息,理论上能收集全
 '''
+import asyncio
 import datetime
 import json
-
+import aiohttp
 import requests
+from asgiref.sync import sync_to_async
 
 from CyberWanderer import settings
 from twitter.models import Tweet
@@ -15,9 +17,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# 获取用户搜索推文()
-def get_user_search_tweets(username, since, until, cursor=''):
-    url = 'https://twitter.com/i/api/2/search/adaptive.json'
+# 获取基本参数
+def get_params():
     params = {
         'include_profile_interstitial_type': 1,  # 包括配置文件插页式类型
         'include_blocking': 1,  # 包括阻塞
@@ -48,6 +49,13 @@ def get_user_search_tweets(username, since, until, cursor=''):
         'include_ext_has_nft_avatar': False,  # 包括头像
         'ext': 'mediaStats%2ChighlightedLabel%2CvoiceInfo%2CsuperFollowMetadata'  # 额外
     }
+    return params
+
+
+# 获取用户搜索推文()
+def get_user_search_tweets(username, since, until, cursor=''):
+    url = 'https://twitter.com/i/api/2/search/adaptive.json'
+    params = get_params()
     if cursor != '':
         params['cursor'] = cursor
     q = '(from:' + username + ')until:' + until + ' since:' + since
@@ -147,7 +155,10 @@ def analyze_search_tweets(tweets_json, to_db=True):
             for u in urls_list:
                 urls = urls + '|' + u.get('expanded_url')
             tweet.tweet_urls = urls  # 推文附加地址
-        tweet.save()  # 保存至数据库
+        if to_db:
+            sync_to_async(tweet.save(), thread_sensitive=True)  # 保存至数据库
+        else:
+            logger.info(tweet.username + ':' + tweet.full_text)
         count += 1
     logger.info('一共 ' + str(count) + ' 条推文')
     cursor_bottom = ''
@@ -167,6 +178,7 @@ def analyze_search_tweets(tweets_json, to_db=True):
 
     return cursor_bottom
 
+
 # # 自动获取搜索内容推文(多线程)
 # def auto_get_user_search_tweets_multithreading(username, since_all_str, until_all_str, to_db=True, intervalDays=1):
 #     since_all = datetime.datetime.strptime(since_all_str, '%Y-%m-%d')
@@ -176,4 +188,63 @@ def analyze_search_tweets(tweets_json, to_db=True):
 #         s = dc/4
 #
 #         multithreading_list(arrayList, function, params=None, thread_num=0)
-#
+
+# -------------------------------------------------------------------------------------------------------
+# 自动获取搜索推文(协程)
+def auto_get_user_search_tweets_coroutine(username, since_all_str, until_all_str, to_db=True, intervalDays=30):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())  # 使用代理必须要的,可能是windows的原因
+    re = asyncio.run(coroutine(username, since_all_str, until_all_str, to_db, intervalDays))
+    for i in re:
+        cursor = analyze_search_tweets(i.result(), True)
+        # todo 解决二次请求问题!!!(协程坑真多)
+
+
+# 协程处理
+async def coroutine(username, since_all_str, until_all_str, to_db=True, intervalDays=30):
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False), trust_env=True) as session:
+        tasks = [
+            asyncio.create_task(get_user_search_tweets_coroutine(username, start, intervalDays, session, '')) for start
+            in get_timedelta_list(since_all_str, until_all_str, intervalDays)
+        ]
+        done, pending = await asyncio.wait(tasks)
+        return done
+
+
+# 获取时间间隔数组
+def get_timedelta_list(since_all_str, until_all_str, intervalDays):
+    result = []
+    start = datetime.datetime.strptime(since_all_str, '%Y-%m-%d')
+    end = datetime.datetime.strptime(until_all_str, '%Y-%m-%d')
+    while start <= end:
+        result.append(start)
+        start = start + datetime.timedelta(days=intervalDays)
+    return result
+
+
+# 获取用户搜索推文(协程)
+async def get_user_search_tweets_coroutine(username, start, intervalDays, session, cursor=''):
+    url = 'https://twitter.com/i/api/2/search/adaptive.json'
+    params = get_params()
+    if cursor != '':
+        params['cursor'] = cursor
+    since = str(start.strftime('%Y-%m-%d'))
+    until = str((start + datetime.timedelta(days=intervalDays)).strftime('%Y-%m-%d'))
+    q = '(from:' + username + ')until:' + until + ' since:' + since
+    logger.info(q)
+    params['q'] = q
+    async with session.get(url,
+                           data=params,
+                           headers=get_headers(),
+                           proxy=settings.PROXIES.get('http'),
+                           verify_ssl=False) as response:
+        if response.status == 200:
+            re = await response.text()
+            tweets_json = json.loads(re)
+            # todo 丢,django不允许异步的情况下调用orm保存对象
+            # cursor = analyze_search_tweets(tweets_json, True)
+            return tweets_json
+
+    # while cursor != '':
+    #     tweets_json = get_user_search_tweets(username, since, until, cursor=cursor)
+    #     cursor = analyze_search_tweets(tweets_json)
+    return None
