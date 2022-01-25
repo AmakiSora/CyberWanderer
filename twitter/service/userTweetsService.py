@@ -118,6 +118,9 @@ def analyzeTweetsResultJSON(result, tweet, tweets, to_db=True):
     if result['__typename'] == 'TweetUnavailable':
         logger.warning('推文不可用')
         return
+    if result['__typename'] == 'TweetTombstone':
+        logger.warning('此推文来自一个不再存在的帐户!')
+        return
     tweet.name = result['core']['user_results']['result']['legacy']['name']  # 名称
     tweet.username = result['core']['user_results']['result']['legacy']['screen_name']  # 唯一用户名
     tweet.user_id = result['core']['user_results']['result']['id']  # 唯一id
