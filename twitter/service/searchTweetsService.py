@@ -10,6 +10,7 @@ import requests
 from asgiref.sync import sync_to_async
 
 from CyberWanderer import settings
+from CyberWanderer.utils import threadUtil
 from twitter.models import Tweet
 from twitter.service.twitterRequestService import get_headers, get_token
 import logging
@@ -179,28 +180,27 @@ def analyze_search_tweets(tweets_json, to_db=True):
     return cursor_bottom
 
 
-# # 自动获取搜索内容推文(多线程)
-# def auto_get_user_search_tweets_multithreading(username, since_all_str, until_all_str, to_db=True, intervalDays=1):
-#     since_all = datetime.datetime.strptime(since_all_str, '%Y-%m-%d')
-#     until_all = datetime.datetime.strptime(until_all_str, '%Y-%m-%d')
-#     dc = (until_all - since_all).days
-#     if dc <= 31:
-#         s = dc/4
-#
-#         multithreading_list(arrayList, function, params=None, thread_num=0)
-
 # -------------------------------------------------------------------------------------------------------
-# 自动获取搜索推文(协程)
-def auto_get_user_search_tweets_coroutine(username, since_all_str, until_all_str, to_db=True, intervalDays=30):
+
+# 自动获取搜索推文(异步)
+def auto_get_user_search_tweets_async(username, since_all_str, until_all_str, intervalDays=30):
+    # 协程获取推文
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())  # 使用代理必须要的,可能是windows的原因
-    re = asyncio.run(coroutine(username, since_all_str, until_all_str, to_db, intervalDays))
-    for i in re:
-        cursor = analyze_search_tweets(i.result(), True)
-        # todo 解决二次请求问题!!!(协程坑真多)
+    re = asyncio.run(coroutine(username, since_all_str, until_all_str, intervalDays))
+    # 多线程处理推文
+    code, statusInfo = threadUtil.multithreading_list(re, multithreadingHandle, params=None)
+    # 如果还有未获取完后续的推文,继续循环获取
+    while len(statusInfo) > 2:
+        # 更换参数
+        get_token()
+        # 协程获取推文
+        re = asyncio.run(coroutine_next(username, statusInfo, intervalDays))
+        # 多线程处理推文
+        code, statusInfo = threadUtil.multithreading_list(re, multithreadingHandle, params=None)
 
 
-# 协程处理
-async def coroutine(username, since_all_str, until_all_str, to_db=True, intervalDays=30):
+# 协程处理(第一次请求)
+async def coroutine(username, since_all_str, until_all_str, intervalDays=30):
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False), trust_env=True) as session:
         tasks = [
             asyncio.create_task(get_user_search_tweets_coroutine(username, start, intervalDays, session, '')) for start
@@ -210,7 +210,7 @@ async def coroutine(username, since_all_str, until_all_str, to_db=True, interval
         return done
 
 
-# 获取时间间隔数组
+# 获取时间间隔数组(协程)
 def get_timedelta_list(since_all_str, until_all_str, intervalDays):
     result = []
     start = datetime.datetime.strptime(since_all_str, '%Y-%m-%d')
@@ -240,11 +240,29 @@ async def get_user_search_tweets_coroutine(username, start, intervalDays, sessio
         if response.status == 200:
             re = await response.text()
             tweets_json = json.loads(re)
-            # todo 丢,django不允许异步的情况下调用orm保存对象
-            # cursor = analyze_search_tweets(tweets_json, True)
-            return tweets_json
-
-    # while cursor != '':
-    #     tweets_json = get_user_search_tweets(username, since, until, cursor=cursor)
-    #     cursor = analyze_search_tweets(tweets_json)
+            # 将查询条件也返回(后面用于获取后续推文)
+            return tweets_json, start
     return None
+
+
+# 多线程处理json
+def multithreadingHandle(task):
+    t = task.result()
+    # t[0]为json信息,t[1]为开始日期
+    cursor = analyze_search_tweets(t[0], True)
+    if cursor != '':
+        return cursor, t[1]
+    else:
+        return '无了', None
+
+
+# 协程处理(后续请求)
+async def coroutine_next(username, statusInfo, intervalDays=30):
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False), trust_env=True) as session:
+        tasks = []
+        for i in statusInfo:
+            if i != 'count' and i != '无了':
+                tasks.append(asyncio.create_task(
+                    get_user_search_tweets_coroutine(username, statusInfo[i], intervalDays, session, i)))
+        done, pending = await asyncio.wait(tasks)
+        return done

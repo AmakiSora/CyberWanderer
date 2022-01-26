@@ -74,11 +74,10 @@ def autoGetUserSearchTweets(request):
         if since is None or until is None:
             return HttpResponse('起始或截止不能为空!')
         intervalDays = body.get('intervalDays')  # 截止时间
-        coroutine = body.get('coroutine', False)  # 是否启用协程
+        asynchronous = body.get('asynchronous', False)  # 是否启用协程
         starttime = datetime.datetime.now()
-        # searchTweetsService.auto_get_user_search_tweets(username, since, until, to_db, intervalDays)
-        if coroutine is True:
-            searchTweetsService.auto_get_user_search_tweets_coroutine(username, since, until, to_db, intervalDays)
+        if asynchronous is True:
+            searchTweetsService.auto_get_user_search_tweets_async(username, since, until, intervalDays)
         else:
             searchTweetsService.auto_get_user_search_tweets(username, since, until, to_db, intervalDays)
         endtime = datetime.datetime.now()

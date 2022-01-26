@@ -33,8 +33,8 @@ def multithreading_list(arrayList, function, params=None, thread_num=0):
         elif count > per_thread_processing_num:
             thread_num = int(count / per_thread_processing_num)
             # 线程上限
-            if thread_num > 50:
-                thread_num = 50
+            if thread_num > 100:
+                thread_num = 100
         else:
             return 0, statusInfo
     threads = []
