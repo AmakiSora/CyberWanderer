@@ -1,9 +1,10 @@
 """
     多线程工具
 """
-
+import logging
 import threading
 
+logger = logging.getLogger(__name__)
 """
     多线程处理数组(数组arrayList,处理函数function,函数的参数params,线程数)
     注意事项:
@@ -33,10 +34,11 @@ def multithreading_list(arrayList, function, params=None, thread_num=0):
         elif count > per_thread_processing_num:
             thread_num = int(count / per_thread_processing_num)
             # 线程上限
-            if thread_num > 100:
-                thread_num = 100
+            if thread_num > 50:
+                thread_num = 50
         else:
             return 0, statusInfo
+    logger.info('总共 ' + str(count) + ' 条数据！' + '启用 ' + str(thread_num) + ' 条线程进行处理！')
     threads = []
     loopFunctionParams = (arrayList, statusInfo, function, params)
     for i in range(thread_num):

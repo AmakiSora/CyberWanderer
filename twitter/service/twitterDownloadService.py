@@ -1,7 +1,6 @@
 """
     用户推文图片下载服务
 """
-import json
 
 from CyberWanderer.utils import downloadUtils
 from CyberWanderer.utils.qiniuUtils import download_file_qiniu

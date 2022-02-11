@@ -35,9 +35,10 @@ def autoGetUserTweets(request):
         if rest_id is None:
             return HttpResponse('用户在数据库中不存在!')
         updateTweet = body.get('updateTweet', False)  # 是否更新
-        re = userTweetsService.autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
+        result = userTweetsService.autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
         userTweetsService.updateTweetCount(username)
-        return HttpResponse(re)
+        logger.info(result)
+        return HttpResponse(result)
 
 
 # 解析推特用户信息
@@ -55,8 +56,9 @@ def autoGetUserInfo(request):
         if username == '':
             return HttpResponse('username不能为空!')
         to_db = body.get('to_db', True)  # 是否入库
-        re = twitterUserService.autoGetUserInfo(username, to_db)
-        return HttpResponse(re)
+        result = twitterUserService.autoGetUserInfo(username, to_db)
+        logger.info(result)
+        return HttpResponse(result)
 
 
 # 自动获取搜索推文
@@ -83,9 +85,10 @@ def autoGetUserSearchTweets(request):
         endtime = datetime.datetime.now()
         oldCount, newCount = userTweetsService.updateTweetCount(username)
         time = (endtime - starttime).seconds
-        return HttpResponse('自动获取推文成功!耗时:' + str(time) + 's,' +
-                            '新增了 ' + str(newCount - oldCount) + ' 条推文,' +
-                            '现有推文 ' + str(newCount) + ' 条!')
+        result = '自动获取推文成功!耗时:' + str(time) + 's,' + \
+                 '新增了 ' + str(newCount - oldCount) + ' 条推文,' + \
+                 '现有推文 ' + str(newCount) + ' 条!'
+        return HttpResponse(result)
 
 
 # 自动获取图片
@@ -95,7 +98,9 @@ def autoGetImg(request):
         filter_obj = body.get('tweets_param', None)
         if filter_obj is None:
             return HttpResponse("filter_obj不能为空！")
-        return HttpResponse(twitterDownloadService.auto_get_img(**filter_obj))
+        result = HttpResponse(twitterDownloadService.auto_get_img(**filter_obj))
+        logger.info(result)
+        return result
 
 
 # 展示推文数据
@@ -122,10 +127,13 @@ def batchUpdateTweets(request):
             return HttpResponse("参数需要为列表！")
         logger.info(usernameList)
         if threads:
-            return HttpResponse(
-                userTweetsService.batchUpdateTweetsThreads(usernameList, count, to_db, frequency, updateTweet))
+            result = userTweetsService.batchUpdateTweetsThreads(usernameList, count, to_db, frequency, updateTweet)
+            logger.info(result)
+            return HttpResponse(result)
         else:
-            return HttpResponse(userTweetsService.batchUpdateTweets(usernameList, count, to_db, frequency, updateTweet))
+            result = userTweetsService.batchUpdateTweets(usernameList, count, to_db, frequency, updateTweet)
+            logger.info(result)
+            return HttpResponse(result)
 
 
 # 批量更新用户信息
@@ -135,7 +143,9 @@ def batchUpdateTwitterUserInfo(request):
         filter_obj = body.get('twitter_user_param', None)
         if filter_obj is None:
             return HttpResponse("twitter_user_param不能为空！")
-        return HttpResponse(twitterUserService.updateTwitterUserInfo(**filter_obj))
+        result = twitterUserService.updateTwitterUserInfo(**filter_obj)
+        logger.info(result)
+        return HttpResponse(result)
 
 
 # 下载推文视频

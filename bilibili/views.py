@@ -16,7 +16,9 @@ def autoGetUserInfo(request):
         if not uid:
             return HttpResponse('请传入uid参数!')
         to_db = body.get('to_db', True)  # 是否入库
-        return HttpResponse(bilibiliUserService.autoGetUserInfo(uid, to_db))
+        result = bilibiliUserService.autoGetUserInfo(uid, to_db)
+        logger.info(result)
+        return HttpResponse(result)
 
 
 # 自动获取用户动态
@@ -31,7 +33,9 @@ def autoGetUserDynamic(request):
             uid = bilibiliUserService.getUidByName(name)
             if uid is None:
                 return HttpResponse('请输入name或uid')
-        return HttpResponse(bilibiliDynamicService.autoGetUserDynamic(uid, to_db, frequency))
+        result = bilibiliDynamicService.autoGetUserDynamic(uid, to_db, frequency)
+        logger.info(result)
+        return HttpResponse(result)
 
 
 # 自动获取用户所有视频信息
@@ -45,7 +49,9 @@ def autoGetUserVideo(request):
             uid = bilibiliUserService.getUidByName(name)
             if uid is None:
                 return HttpResponse('请输入name或uid')
-        return HttpResponse(bilibiliVideoService.autoGetUserVideo(uid, to_db))
+        result = bilibiliVideoService.autoGetUserVideo(uid, to_db)
+        logger.info(result)
+        return HttpResponse(result)
 
 
 # 自动获取图片
@@ -55,7 +61,9 @@ def autoGetImg(request):
         filter_obj = body.get('dynamic_param', None)
         if filter_obj is None:
             return HttpResponse("filter_obj不能为空！")
-        return HttpResponse(bilibiliImgDownloadService.auto_get_img(**filter_obj))
+        result = bilibiliImgDownloadService.auto_get_img(**filter_obj)
+        logger.info(result)
+        return HttpResponse(result)
 
 
 # 更新多用户动态
@@ -72,10 +80,11 @@ def batchUpdateDynamic(request):
             return HttpResponse("参数需要为列表！")
         logger.info(usernameList)
         if threads:
-            return HttpResponse(
-                bilibiliDynamicService.batchUpdateDynamicThreads(usernameList, to_db, frequency))
+            result = bilibiliDynamicService.batchUpdateDynamicThreads(usernameList, to_db, frequency)
+            logger.info(result)
+            return HttpResponse(result)
         else:
-            return HttpResponse('233')
+            return HttpResponse('现在只有多线程处理方式！')
 
 
 # 批量更新用户信息
@@ -85,7 +94,9 @@ def batchUpdateBiliBiliUserInfo(request):
         filter_obj = body.get('bilibili_user_param', None)
         if filter_obj is None:
             return HttpResponse("bilibili_user_param不能为空！")
-        return HttpResponse(bilibiliUserService.updateBiliBiliUserInfo(**filter_obj))
+        result = bilibiliUserService.updateBiliBiliUserInfo(**filter_obj)
+        logger.info(result)
+        return HttpResponse(result)
 
 
 # 下载b站视频
@@ -98,4 +109,6 @@ def downloadVideo(request):
         file_name = body.get('file_name', None)
         folder_name = body.get('folder_name', None)
         proxy = body.get('proxy', False)
-        return HttpResponse(bilibiliVideoService.downloadVideo(bv, file_name, folder_name, proxy))
+        result = bilibiliVideoService.downloadVideo(bv, file_name, folder_name, proxy)
+        logger.info(result)
+        return HttpResponse(result)
