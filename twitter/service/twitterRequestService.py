@@ -31,10 +31,14 @@ url_token = 'https://api.twitter.com/1.1/guest/activate.json'
 
 # 获取token
 def get_token():
-    token = json.loads(requests.post(url_token, headers=headers, proxies=settings.PROXIES).text)['guest_token']
-    logger.info(str('guest—token：' + str(token)))
-    headers['x-guest-token'] = token
-    return token
+    try:
+        token = json.loads(requests.post(url_token, headers=headers, proxies=settings.PROXIES).text)['guest_token']
+        logger.info(str('guest—token：' + str(token)))
+        headers['x-guest-token'] = token
+        return token
+    except:
+        logger.info("获取token出错")
+        return '获取token出错'
 
 
 def get_headers():

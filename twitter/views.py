@@ -98,9 +98,9 @@ def autoGetImg(request):
         filter_obj = body.get('tweets_param', None)
         if filter_obj is None:
             return HttpResponse("filter_obj不能为空！")
-        result = HttpResponse(twitterDownloadService.auto_get_img(**filter_obj))
+        result = twitterDownloadService.auto_get_img(**filter_obj)
         logger.info(result)
-        return result
+        return HttpResponse(result)
 
 
 # 展示推文数据
