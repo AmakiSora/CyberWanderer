@@ -172,6 +172,14 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
+        'sys': {
+            'format': '时间: {asctime} 等级: SYS   内容: {message}',
+            'style': '{',
+        },
+        'normal': {
+            'format': '时间: {asctime} 等级: {levelname}  内容: {message}',
+            'style': '{',
+        },
         'red': {
             'format': '\033[0;31m {message} \033[0m',
             'style': '{',
@@ -197,11 +205,11 @@ LOGGING = {
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'green',
+            'formatter': parser.get('log', 'self_log_formatter'),
         },
         'system_log': {
             'class': 'logging.StreamHandler',
-            'formatter': 'purple'
+            'formatter': parser.get('log', 'system_log_formatter'),
         },
     },
     'root': {

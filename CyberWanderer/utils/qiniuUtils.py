@@ -35,6 +35,9 @@ def download_file_qiniu(url, file_name='', bucket_name='default-0', isProxy=Fals
             except:
                 logger.warning(str("上传到云失败,url:" + str(url)))
                 return 'fail', None
+        else:
+            logger.warning(str("资源已失效,url:" + str(url)))
+            return 'notExist', None
     except:
         logger.error(str("连接失败!url:" + str(url)))
         return 'fail', None

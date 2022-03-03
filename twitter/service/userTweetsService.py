@@ -69,7 +69,6 @@ def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
     # j = open('D:\cosmos\OneDrive/twitter/json.txt', 'r', encoding="utf-8")
     # o = json.loads(j.read())
     cursor_bottom = None
-    # instructions = tweets_json['data']['user']['result']['timeline']['timeline'].get('instructions', None)
     instructions = jsonpath.jsonpath(tweets_json, "$.data.user.result.timeline.timeline.instructions")
     if not instructions:
         return None, 0
@@ -100,7 +99,6 @@ def analyzeUserTweets(tweets_json, to_db=True, updateTweet=False):
                     # print("光标顶部,暂时不处理")
                 elif re.match("^cursor-bottom-[0-9-a-zA-Z]*", entryId):  # 光标底部
                     cursor_bottom = e['content'].get('value')
-            logger.info(str(tweets))
             logger.info(str('本次请求一共' + str(tweetNum) + "条推文!"))
             Tweet.objects.bulk_create(tweets, ignore_conflicts=True)  # 批量存入数据库(忽略重复id,即不会更新数据)
             if updateTweet:

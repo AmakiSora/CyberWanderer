@@ -23,7 +23,7 @@ headers = {
     # 'Sec-Fetch-Site': 'same-origin',
     'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA',
     # 'Referer': 'https://twitter.com/',
-    # 'Connection': 'keep-alive',
+    'Connection': 'close',
 }
 
 url_token = 'https://api.twitter.com/1.1/guest/activate.json'
@@ -32,23 +32,22 @@ url_token = 'https://api.twitter.com/1.1/guest/activate.json'
 # 获取token
 def get_token():
     try:
-        token = json.loads(requests.post(url_token, headers=headers, proxies=settings.PROXIES).text)['guest_token']
-        logger.info(str('guest—token：' + str(token)))
+        connect = requests.post(url_token, headers=headers, proxies=settings.PROXIES)
+        logger.info(connect)
+        logger.info(connect.text)
+        token = json.loads(connect.text).get('guest_token', '')
+        connect.close()
+        if token == '':
+            raise IOError("请检查网络连接！")
+        logger.info(str('成功获取到token：' + str(token)))
         headers['x-guest-token'] = token
         return token
-    except:
-        logger.info("获取token出错")
-        return '获取token出错'
+    except IOError as e:
+        logger.error("获取token出错!!!错误为: " + str(e))
+        return "获取token出错!!!错误为: " + str(e)
 
 
 def get_headers():
     if headers.get('x-guest-token') == '':
         get_token()
     return headers
-
-# 初始化时获取
-# try:
-#     if headers.get('x-guest-token') == '':
-#         get_token()
-# except IOError:
-#     print('未连接到推特!')

@@ -29,6 +29,7 @@ def auto_get_img(**filter_obj):
     elif code == 200:
         return '总共' + str(statusInfo.get('count', 0)) + '张图片!' + \
                '已存在' + str(statusInfo.get('exist', 0)) + '张图片!' + \
+               '已失效' + str(statusInfo.get('notExist', 0)) + '张图片!' + \
                '上传成功' + str(statusInfo.get('success', 0)) + '张图片!' + \
                '上传失败' + str(statusInfo.get('fail', 0)) + '张图片!'
 

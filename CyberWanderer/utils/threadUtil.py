@@ -26,6 +26,7 @@ def multithreading_list(arrayList, function, params=None, thread_num=0):
     statusInfo = {}
     count = len(arrayList)
     statusInfo['count'] = count
+    thread_num_limit = 100
     if thread_num == 0:
         # 每条线程处理的数据量
         per_thread_processing_num = 3
@@ -34,8 +35,8 @@ def multithreading_list(arrayList, function, params=None, thread_num=0):
         elif count > per_thread_processing_num:
             thread_num = int(count / per_thread_processing_num)
             # 线程上限
-            if thread_num > 50:
-                thread_num = 50
+            if thread_num > thread_num_limit:
+                thread_num = thread_num_limit
         else:
             return 0, statusInfo
     logger.info('总共 ' + str(count) + ' 条数据！' + '启用 ' + str(thread_num) + ' 条线程进行处理！')
