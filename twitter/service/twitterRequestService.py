@@ -32,6 +32,7 @@ url_token = 'https://api.twitter.com/1.1/guest/activate.json'
 # 获取token
 def get_token():
     try:
+        headers['x-guest-token'] = ''
         connect = requests.post(url_token, headers=headers, proxies=settings.PROXIES)
         logger.info(connect)
         logger.info(connect.text)

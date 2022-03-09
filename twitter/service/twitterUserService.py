@@ -1,10 +1,7 @@
 import datetime
-import logging
 
-from twitter.models import Tweet, TwitterUser
+from twitter.models import TwitterUser
 from .twitterRequestService import *
-import logging
-
 from .userTweetsService import updateTweetCount
 
 '''
