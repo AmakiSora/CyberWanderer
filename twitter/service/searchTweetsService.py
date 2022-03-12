@@ -5,6 +5,8 @@
 import asyncio
 import datetime
 import json
+import sys
+
 import aiohttp
 import requests
 from asgiref.sync import sync_to_async
@@ -179,8 +181,9 @@ def analyze_search_tweets(tweets_json, to_db=True):
 
 # 自动获取搜索推文(异步)
 def auto_get_user_search_tweets_async(username, since_all_str, until_all_str, intervalDays=30):
+    if('win' in sys.platform):
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())  # 使用代理必须要的,windows的原因
     # 协程获取推文
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())  # 使用代理必须要的,可能是windows的原因
     re = asyncio.run(coroutine(username, since_all_str, until_all_str, intervalDays))
     # 多线程处理推文
     code, statusInfo = threadUtil.multithreading_list(re, multithreadingHandle, params=None)

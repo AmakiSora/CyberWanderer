@@ -1,10 +1,11 @@
 import datetime
 import json
+import logging
 
 from django.http import HttpResponse
+
 from .service import twitterUserService, userTweetsService, twitterRequestService, searchTweetsService, \
     twitterDownloadService, showTweetsService
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,8 @@ def autoGetUserTweets(request):
         userTweetsService.autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
         oldCount, newCount = userTweetsService.updateTweetCount(username)
         logger.info('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条推文,现存 ' + str(newCount) + ' 条推文！')
-        return HttpResponse('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条推文,现存 ' + str(newCount) + ' 条推文！')
+        return HttpResponse(
+            '用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条推文,现存 ' + str(newCount) + ' 条推文！')
 
 
 # 解析推特用户信息
@@ -121,19 +123,47 @@ def batchUpdateTweets(request):
         updateTweet = body.get('updateTweet', False)  # 是否更新
         frequency = body.get('frequency', 20)  # 循环次数
         threads = body.get('threads', False)  # 多线程
+        useSearch = body.get('useSearch', False)  # 使用搜索的方式更新
+        searchDay = body.get('searchDay', 7)  # 搜索天数(默认7天)
         if usernameList is None:
             return HttpResponse("名单列表不能为空！")
         elif type(usernameList) is not list:
             return HttpResponse("参数需要为列表！")
         logger.info(usernameList)
-        if threads:
-            result = userTweetsService.batchUpdateTweetsThreads(usernameList, count, to_db, frequency, updateTweet)
-            logger.info(result)
-            return HttpResponse(result)
-        else:
-            result = userTweetsService.batchUpdateTweets(usernameList, count, to_db, frequency, updateTweet)
-            logger.info(result)
-            return HttpResponse(result)
+        if useSearch:  # 使用搜索的方式更新
+            now = datetime.datetime.today()
+            since = (now - datetime.timedelta(searchDay)).strftime("%Y-%m-%d")
+            until = now.strftime("%Y-%m-%d")
+            logger.info('获取时间区间 : ' + since + ' 到 ' + until)
+            intervalDays = 1
+            resultList = []  # 返回信息列表
+            if threads:  # 使用多线程
+                for username in usernameList:
+                    searchTweetsService.auto_get_user_search_tweets_async(username, since, until, intervalDays)
+                    oldCount, newCount = userTweetsService.updateTweetCount(username)
+                    result = '用户:' + username + '获取搜索推文成功!' + \
+                             '新增 ' + str(newCount - oldCount) + ' 条,' + \
+                             '现有 ' + str(newCount) + ' 条!\n'
+                    resultList.append(result)
+            else:
+                for username in usernameList:
+                    searchTweetsService.auto_get_user_search_tweets(username, since, until, to_db, intervalDays)
+                    oldCount, newCount = userTweetsService.updateTweetCount(username)
+                    result = '用户:' + username + '获取搜索推文成功!' + \
+                             '新增 ' + str(newCount - oldCount) + ' 条,' + \
+                             '现有 ' + str(newCount) + ' 条!\n'
+                    resultList.append(result)
+            logger.info(str(resultList))
+            return HttpResponse(resultList)
+        else:  # 使用滚动的方式更新
+            if threads:  # 使用多线程
+                result = userTweetsService.batchUpdateTweetsThreads(usernameList, count, to_db, frequency, updateTweet)
+                logger.info(result)
+                return HttpResponse(result)
+            else:
+                result = userTweetsService.batchUpdateTweets(usernameList, count, to_db, frequency, updateTweet)
+                logger.info(result)
+                return HttpResponse(result)
 
 
 # 批量更新用户信息
