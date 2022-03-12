@@ -81,7 +81,6 @@ def auto_get_user_search_tweets(username, since_all_str, until_all_str, to_db=Tr
     dc = (until_all - since_all).days
     since = since_all
     until = since + datetime.timedelta(days=intervalDays)
-    refreshToken = 0
     while dc > 0:
         if dc > intervalDays:
             loopAnalysis(username, since.strftime('%Y-%m-%d'), until.strftime('%Y-%m-%d'))
@@ -97,10 +96,6 @@ def auto_get_user_search_tweets(username, since_all_str, until_all_str, to_db=Tr
             logger.info(str("执行分析区间: " + str(since) + ' - ' + str(until) + ' 剩余天数：' + str(dc - intervalDays)))
             # print("执行分析区间:", since, '-', until, '剩余天数：', dc - intervalDays)
             dc = dc - intervalDays
-        refreshToken += 1
-        if refreshToken > 10:
-            refreshToken = 0
-            get_token()
 
 
 # 循环解析

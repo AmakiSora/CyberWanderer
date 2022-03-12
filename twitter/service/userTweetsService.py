@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import re
 
 import jsonpath as jsonpath
@@ -9,8 +10,7 @@ from CyberWanderer import settings
 from CyberWanderer.utils.threadUtil import multithreading_list
 from twitter.models import Tweet, TwitterUser
 from twitter.service import twitterUserService
-from twitter.service.twitterRequestService import get_token, headers, get_headers
-import logging
+from twitter.service.twitterRequestService import get_headers
 
 logger = logging.getLogger(__name__)
 '''

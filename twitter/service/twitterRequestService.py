@@ -23,7 +23,6 @@ headers = {
     # 'Sec-Fetch-Site': 'same-origin',
     'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA',
     # 'Referer': 'https://twitter.com/',
-    'Connection': 'close',
 }
 
 url_token = 'https://api.twitter.com/1.1/guest/activate.json'
@@ -34,10 +33,8 @@ def get_token():
     try:
         headers['x-guest-token'] = ''
         connect = requests.post(url_token, headers=headers, proxies=settings.PROXIES)
-        logger.info(connect)
         logger.info(connect.text)
         token = json.loads(connect.text).get('guest_token', '')
-        connect.close()
         if token == '':
             raise IOError("请检查网络连接！")
         logger.info(str('成功获取到token：' + str(token)))
@@ -48,7 +45,13 @@ def get_token():
         return "获取token出错!!!错误为: " + str(e)
 
 
+i = 0
+
+
 def get_headers():
-    if headers.get('x-guest-token') == '':
+    global i
+    i += 1
+    if i > 30:
         get_token()
+        i = 0
     return headers

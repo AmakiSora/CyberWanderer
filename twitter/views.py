@@ -35,10 +35,10 @@ def autoGetUserTweets(request):
         if rest_id is None:
             return HttpResponse('用户在数据库中不存在!')
         updateTweet = body.get('updateTweet', False)  # 是否更新
-        result = userTweetsService.autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
-        userTweetsService.updateTweetCount(username)
-        logger.info(result)
-        return HttpResponse(result)
+        userTweetsService.autoGetUserTweets(rest_id, count, to_db, frequency, updateTweet)
+        oldCount, newCount = userTweetsService.updateTweetCount(username)
+        logger.info('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条推文,现存 ' + str(newCount) + ' 条推文！')
+        return HttpResponse('用户：' + username + ' 更新了 ' + str(newCount - oldCount) + ' 条推文,现存 ' + str(newCount) + ' 条推文！')
 
 
 # 解析推特用户信息
