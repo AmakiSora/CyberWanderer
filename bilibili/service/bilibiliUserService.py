@@ -91,9 +91,9 @@ def updateBiliBiliUserInfo(**filter_obj):
     bilibili_users = BiliBiliUser.objects.filter(**filter_obj)
     if bilibili_users.count() == 0:
         return '未找到筛选的用户!!!'
-    msg = '共更新了 ' + str(bilibili_users.count()) + ' 个用户信息\n'
+    msg = ['共更新了 ' + str(bilibili_users.count()) + ' 个用户信息']
     for info in bilibili_users:
         re = autoGetUserInfo(info.uid, True)
-        msg += re + '\n'
+        msg.append(re)
         logger.info(re)
     return msg

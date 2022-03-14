@@ -183,10 +183,10 @@ def batchUpdateDynamicThreads(usernameList, to_db, frequency):
     if code == 0:
         return "无!"
     elif code == 200:
-        re = '总共' + str(statusInfo.get('count', 0)) + '个用户!\n'
+        re = ['总共' + str(statusInfo.get('count', 0)) + '个用户!']
         for i in statusInfo:
             if i != 'count':
-                re += statusInfo[i]+'\n'
+                re.append(statusInfo[i])
         return re
 
 

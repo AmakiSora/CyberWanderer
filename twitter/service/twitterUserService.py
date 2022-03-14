@@ -38,6 +38,8 @@ def getUserInfo(username):
 # 自动化
 def autoGetUserInfo(username, to_db):
     info_json = getUserInfo(username)
+    if info_json is None:
+        return '获取数据出错'
     re = analyzeUserInfo(info_json, to_db)
     return re
 
@@ -82,9 +84,9 @@ def updateTwitterUserInfo(**filter_obj):
     twitter_users = TwitterUser.objects.filter(**filter_obj)
     if twitter_users.count() == 0:
         return '未找到筛选的用户!!!'
-    msg = '共更新了 ' + str(twitter_users.count()) + ' 个推特用户信息!\n'
+    msg = ['共更新了 ' + str(twitter_users.count()) + ' 个推特用户信息!']
     for info in twitter_users:
         re = autoGetUserInfo(info.username, True)
-        msg += re + '\n'
+        msg.append(re)
         logger.info(re)
     return msg

@@ -189,8 +189,6 @@ def auto_get_user_search_tweets_async(username, since_all_str, until_all_str, in
     code, statusInfo = threadUtil.multithreading_list(re, multithreadingHandle, params=None)
     # 如果还有未获取完后续的推文,继续循环获取
     while len(statusInfo) > 2:
-        # 更换参数
-        get_token()
         # 协程获取推文
         re = asyncio.run(coroutine_next(username, statusInfo, intervalDays))
         # 多线程处理推文
