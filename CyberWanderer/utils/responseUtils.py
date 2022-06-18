@@ -25,7 +25,8 @@ def result(code=HttpCode.ok, message="", data=None, kwargs=None):
     # isinstance(object对象, 类型):判断是否数据xx类型
     if kwargs and isinstance(kwargs, dict) and kwargs.keys():
         json_dict.update(kwargs)
-    return JsonResponse(json_dict)
+    re = JsonResponse(headers={'Access-Control-Allow-Origin': '*'}, data=json_dict)
+    return re
 
 
 # 成功

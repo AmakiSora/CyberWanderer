@@ -1,9 +1,10 @@
 version: '3'
 services:
   web:
-    build: CyberWanderer
-    command: python manage.py runserver 0.0.0.0:8000
+    restart: always
+    build: .
+    command: python /code/manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/
+      - /home/cosmos/smb/project/cyber/CyberWanderer:/code
     ports:
       - "8088:8000"
