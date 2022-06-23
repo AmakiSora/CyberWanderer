@@ -23,7 +23,8 @@ urlpatterns = [
     path('youGet/', get_resource),
     path('twitter/', include('twitter.urls')),
     path('translate/', include('translate.urls')),
-    path('bilibili/', include('bilibili.urls'))
+    path('bilibili/', include('bilibili.urls')),
+    path('downloadAllFromQiniu/', download_all_from_qiniu)
     # path('test/<str:username>', page_test), #匹配string
     # path('test/<int:num>',page_test),  # 匹配int
     # path('test/<path:ph>', page_test),#匹配带/的string

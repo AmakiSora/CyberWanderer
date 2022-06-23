@@ -34,8 +34,10 @@ def download_img_local(url, file_name='', folder_name='', useProxy=False):
         r = requests.get(url, proxies=proxies)
         if r.status_code == 200:
             try:
-                open(folder_name + file_name, 'wb').write(r.content)
+                f = open(folder_name + file_name, 'wb')
+                f.write(r.content)
                 logger.info(str("下载成功,url:" + str(url)))
+                f.close()
                 return 'success', None
             except:
                 logger.warning(str("下载失败,url：" + str(url)))

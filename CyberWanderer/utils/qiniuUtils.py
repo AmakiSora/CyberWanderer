@@ -89,10 +89,22 @@ def upload_folder_qiniu(folder_name, bucket_name='default-0'):
                    '上传失败' + str(statusInfo.get('fail', 0)) + '张图片!'
 
 
-# 获取资源信息(没有返回None)
+# 获取单一资源信息(没有返回None)
 def qiniu_get_info(file_name, bucket_name='default-0'):
     bucket = BucketManager(settings.QN)
     re, info = bucket.stat(bucket_name, file_name)
     return re
+
+
+# 获取资源池内所有文件信息
+def qiniu_get_all_info(bucket_name='default-0', marker=None, url_prefix=''):
+    bucket = BucketManager(settings.QN)
+    ret, eof, info = bucket.list(bucket=bucket_name, marker=marker, limit=1000)  # 默认1000条
+    items = ret['items']
+    logger.info("七牛云资源池:" + bucket_name + " offset:" + ret['marker'] + " 总计:" + str(len(items)))
+    urls = []
+    for i in items:
+        urls.append(url_prefix + i['key'])
+    return urls, ret['marker']
 
 # print(upload_folder_qiniu('D:/cosmos/test/sally_amaki'))  # 本地上传文件

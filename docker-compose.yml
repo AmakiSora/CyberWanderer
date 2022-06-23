@@ -7,5 +7,6 @@ services:
     command: python /code/manage.py runserver 0.0.0.0:8000
     volumes:
       - /home/cosmos/smb/project/cyber/CyberWanderer:/code
+      - /home/cosmos/smb/project/cyber/data:/data
     ports:
       - "8088:8000"
