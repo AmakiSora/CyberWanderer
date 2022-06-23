@@ -14,15 +14,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def download_file_qiniu(url, file_name='', bucket_name='default-0', isProxy=False):
+def download_file_qiniu(url, file_name='', bucket_name='default-0', useProxy=False):
     if file_name == '':
         file_name = url.split('/')[-1]
+    # 校验文件是否已存在
     if qiniu_get_info(file_name, bucket_name) is not None:
         logger.info(str('资源已存在' + str(url)))
         return 'exist', None
     token = settings.QN.upload_token(bucket_name, file_name, 60)
     try:
-        if isProxy:
+        if useProxy:
             proxies = settings.PROXIES
         else:
             proxies = None

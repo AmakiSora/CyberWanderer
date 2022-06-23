@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 
-from CyberWanderer.utils import responseUtils
+from CyberWanderer.utils import responseUtils, downloadUtils
 from .service import twitterUserService, userTweetsService, twitterRequestService, searchTweetsService, \
     twitterDownloadService, showTweetsService
 
@@ -100,10 +100,21 @@ def autoGetUserSearchTweets(request):
 def autoGetImg(request):
     if request.method == 'POST':
         body = json.loads(request.body)
+
+        # 获取图片范围
         filter_obj = body.get('tweets_param', None)
         if filter_obj is None:
             return responseUtils.params_error("filter_obj不能为空！")
-        result = twitterDownloadService.auto_get_img(**filter_obj)
+
+        # 下载方式
+        download_method = body.get('download_method', None)
+        # 默认上传到七牛云
+        if download_method is None:
+            download_method = 'qiniu'
+
+        urls = twitterDownloadService.get_img_url(**filter_obj)
+        result = downloadUtils.auto_get_img(urls=urls, download_method=download_method)
+
         logger.info(result)
         return responseUtils.ok('自动获取图片成功', result)
 

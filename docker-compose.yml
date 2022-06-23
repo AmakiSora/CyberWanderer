@@ -1,6 +1,7 @@
 version: '3'
 services:
   web:
+    container_name: cyber
     restart: always
     build: .
     command: python /code/manage.py runserver 0.0.0.0:8000

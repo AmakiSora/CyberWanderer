@@ -20,20 +20,6 @@ def get_img_url(**filter_obj):
     return all_url_list
 
 
-# 自动获取用户图片
-def auto_get_img(**filter_obj):
-    urls = get_img_url(**filter_obj)
-    code, statusInfo = multithreading_list(urls, download_file_qiniu, ('', 'default-0', True))
-    if code == 0:
-        return "无图片上传!"
-    elif code == 200:
-        return '总共' + str(statusInfo.get('count', 0)) + '张图片!' + \
-               '已存在' + str(statusInfo.get('exist', 0)) + '张图片!' + \
-               '已失效' + str(statusInfo.get('notExist', 0)) + '张图片!' + \
-               '上传成功' + str(statusInfo.get('success', 0)) + '张图片!' + \
-               '上传失败' + str(statusInfo.get('fail', 0)) + '张图片!'
-
-
 # 下载推文视频
 def downloadVideo(id, file_name, folder_name, proxy):
     url = 'https://twitter.com/i/status/' + id
