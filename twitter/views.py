@@ -132,7 +132,7 @@ def batchUpdateTweets(request):
     if request.method == 'POST':
         twitterRequestService.get_token()
         body = json.loads(request.body)
-        usernameList = body.get('usernameList', None)
+        twitter_user_param = body.get('twitter_user_param', None)
         count = body.get('count', 200)  # 每次请求获取的推文数
         to_db = body.get('to_db', True)  # 是否入库
         updateTweet = body.get('updateTweet', False)  # 是否更新
@@ -140,11 +140,14 @@ def batchUpdateTweets(request):
         threads = body.get('threads', False)  # 多线程
         useSearch = body.get('useSearch', False)  # 使用搜索的方式更新
         searchDay = body.get('searchDay', 7)  # 搜索天数(默认7天)
-        if usernameList is None:
-            return responseUtils.params_error("名单列表不能为空！")
-        elif type(usernameList) is not list:
-            return responseUtils.params_error("参数需要为列表！")
-        logger.info(usernameList)
+        if twitter_user_param is None:
+            return responseUtils.params_error("筛选用户参数不能为空！")
+        logger.info('筛选用户参数: ' + str(twitter_user_param))
+        # 根据user_param获取usernameList
+        usernameList = twitterUserService.getUsernameListByUserParam(**twitter_user_param)
+        if not usernameList:
+            return responseUtils.params_error("筛选用户不存在！")
+
         if useSearch:  # 使用搜索的方式更新
             now = datetime.datetime.today()
             since = (now - datetime.timedelta(searchDay)).strftime("%Y-%m-%d")

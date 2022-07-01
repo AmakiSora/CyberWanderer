@@ -36,4 +36,5 @@ class TwitterUser(models.Model):
     display_url = models.CharField('展示链接', max_length=255, default='')
     tweet_count = models.IntegerField('推文数', default=0)
     status = models.CharField('状态', max_length=255, default='')
+    tag = models.CharField('标签', max_length=255, default='')
 

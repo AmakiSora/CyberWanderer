@@ -3,8 +3,6 @@
 """
 
 from CyberWanderer.utils import downloadUtils
-from CyberWanderer.utils.qiniuUtils import download_file_qiniu
-from CyberWanderer.utils.threadUtil import multithreading_list
 from twitter.models import Tweet
 
 

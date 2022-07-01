@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def page_hello(request):
-    html = 'This is CyberWanderer V2.2.5'
+    html = 'This is CyberWanderer V2.2.6'
     return HttpResponse(html)
 
 

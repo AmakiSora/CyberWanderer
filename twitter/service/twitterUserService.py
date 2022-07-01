@@ -19,6 +19,16 @@ def getRestIdByUsername(username):
     return rest_id
 
 
+# 根据user_param获取usernameList
+def getUsernameListByUserParam(**twitter_user_param):
+    try:
+        usernameList = list(TwitterUser.objects.filter(**twitter_user_param).values_list('username', flat=True))
+        logger.info('用户名列表: ' + str(usernameList))
+    except:
+        return None
+    return usernameList
+
+
 def getUserInfo(username):
     u = 'https://twitter.com/i/api/graphql/cYsDlVss-qimNYmNlb6inw/UserByScreenName'
     variables = {
