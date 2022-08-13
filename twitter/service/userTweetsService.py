@@ -41,9 +41,12 @@ def getTweets(user_id, count, cursor=''):
     params = {
         'variables': json.dumps(variables, sort_keys=True, indent=4, separators=(',', ':'))
     }
-    tweets_json = requests.post(url, params, headers=get_headers(), proxies=settings.PROXIES)
-    if tweets_json.status_code == 200:
-        return json.loads(tweets_json.text)
+    try:
+        tweets_json = requests.post(url, params, headers=get_headers(), proxies=settings.PROXIES, timeout=20)
+        if tweets_json.status_code == 200:
+            return json.loads(tweets_json.text)
+    except requests.exceptions.RequestException as e:
+        logger.error('获取推文错误:'+str(e))
     return None
 
 

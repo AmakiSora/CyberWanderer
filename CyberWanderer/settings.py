@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_apscheduler',
     'twitter',  # 推特模块
     'translate',  # 翻译模块
     'bilibili',  # 批哩批哩模块
@@ -246,3 +247,8 @@ TENCENT = {
     'secret_id': parser.get('tencent', 'secret_id'),
     'secret_key': parser.get('tencent', 'secret_key'),
 }
+
+# 定时任务设置(django-apscheduler)
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
+
