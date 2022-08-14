@@ -24,9 +24,32 @@ urlpatterns = [
     path('twitter/', include('twitter.urls')),
     path('translate/', include('translate.urls')),
     path('bilibili/', include('bilibili.urls')),
-    path('downloadAllFromQiniu/', download_all_from_qiniu)
+    path('downloadAllFromQiniu/', download_all_from_qiniu),
     # path('test/<str:username>', page_test), #匹配string
     # path('test/<int:num>',page_test),  # 匹配int
     # path('test/<path:ph>', page_test),#匹配带/的string
     # path('test/<slug:sl>', page_test),#匹配任意ASCII码的短标签
+
+    # 定时任务
+    # 新增任务
+    path('task/add', task_add),
+    # 移除任务(指定)
+    path('task/remove', task_remove),
+    # 移除任务(所有)
+    path('task/removeAll', task_remove_all),
+    # 开启任务
+    path('task/start', task_start),
+    # 暂停任务(指定)
+    path('task/pause', task_pause),
+    # 暂停任务(所有)
+    path('task/pauseAll', task_pause_all),
+    # 恢复任务(指定)
+    path('task/resume', task_resume),
+    # 恢复任务(所有)
+    path('task/resumeAll', task_resume_all),
+    # 修改任务(指定)
+    path('task/modify', task_modify),
+    # 查询任务(所有)
+    path('task/query', task_query),
+    # path('',),
 ]

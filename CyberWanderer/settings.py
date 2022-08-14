@@ -250,5 +250,6 @@ TENCENT = {
 
 # 定时任务设置(django-apscheduler)
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
-APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
+# 定时任务超时时间
+APSCHEDULER_RUN_NOW_TIMEOUT = 600  # Seconds
 

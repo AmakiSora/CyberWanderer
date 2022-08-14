@@ -4,6 +4,7 @@ import logging
 
 from django.http import HttpResponse
 
+from CyberWanderer.task import APSchedulerTask
 from CyberWanderer.utils import downloadUtils, responseUtils, qiniuUtils
 
 logger = logging.getLogger(__name__)
@@ -51,37 +52,94 @@ def download_all_from_qiniu(request):
                 break
     return responseUtils.ok("下载完毕")
 
-from apscheduler.schedulers.background import BackgroundScheduler
-from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
 
-# 开启定时工作
-try:
-    # 1.实例化调度器
-    scheduler = BackgroundScheduler()
-
-    # 2.调度器使用DjangoJobStore()
-    scheduler.add_jobstore(DjangoJobStore(), "default")
+'''
+    定时任务
+'''
 
 
-    # 3.设置定时任务，选择方式为interval，时间间隔为10s
-    #     # 另一种方式为每天固定时间执行任务，对应代码为：
-    #     # @register_job(scheduler, 'cron', day_of_week='mon-fri', hour='9', minute='30', second='10',id='task_time')
-    #
-    @register_job(scheduler, "interval", seconds=10, replace_existing=True )
-    def my_job():
-        # 这里写你要执行的任务
-        logger.info("定时任务测试!!!")
+# 新增任务(样例)
+def task_add(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        # 任务id
+        job_id = body.get('job_id', None)
+        # 执行时间
+        cron = body.get('cron', None)
+        # 任务自定义参数
+        params = body.get('params', None)
+        APSchedulerTask.add(job_id, cron, params)
+        return responseUtils.ok('新增定时任务 ' + job_id + ' 成功!')
 
 
-    # 4.注册定时任务
-    # register_events(scheduler)
-
-    # 5.开启定时任务
-    scheduler.start()
-
-except Exception as e:
-    print(e)
-    # 有错误就停止定时器
-    scheduler.shutdown()
+# 移除任务(指定)
+def task_remove(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        job_id = body.get('job_id', None)
+        APSchedulerTask.remove(job_id)
+        return responseUtils.ok('定时任务 ' + job_id + ' 移除成功!')
 
 
+# 移除任务(所有)
+def task_remove_all(request):
+    APSchedulerTask.remove_all()
+    return responseUtils.ok('所有定时任务移除成功!')
+
+
+# 开启任务(总开关)
+def task_start(request):
+    APSchedulerTask.start()
+    return responseUtils.ok('定时任务开启成功!')
+
+
+# 暂停任务(指定)
+def task_pause(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        job_id = body.get('job_id', None)
+        APSchedulerTask.pause(job_id)
+        return responseUtils.ok('定时任务暂停成功!')
+
+
+# 暂停任务(所有)
+def task_pause_all(request):
+    APSchedulerTask.pause_all()
+    return responseUtils.ok('所有定时任务暂停成功!')
+
+
+# 恢复任务(指定)
+def task_resume(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        job_id = body.get('job_id', None)
+        APSchedulerTask.resume(job_id)
+        return responseUtils.ok('定时任务 ' + job_id + ' 恢复成功!')
+
+
+# 恢复任务(所有)
+def task_resume_all(request):
+    APSchedulerTask.resume_all()
+    return responseUtils.ok('所有定时任务恢复成功!')
+
+
+# 修改任务(指定)
+def task_modify(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        # 任务id
+        job_id = body.get('job_id', None)
+        # 执行时间
+        cron = body.get('cron', None)
+        # 任务自定义参数
+        params = body.get('params', None)
+        APSchedulerTask.modify(job_id, cron, params)
+        return responseUtils.ok('修改定时任务 ' + job_id + ' 成功!')
+
+
+# 查询任务(所有)
+def task_query(request):
+    result = []
+    for i in APSchedulerTask.query():
+        result.append(i.__getstate__().__str__())
+    return responseUtils.ok('定时任务', result)
