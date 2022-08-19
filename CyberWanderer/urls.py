@@ -31,8 +31,8 @@ urlpatterns = [
     # path('test/<slug:sl>', page_test),#匹配任意ASCII码的短标签
 
     # 定时任务
-    # 新增任务
-    path('task/add', task_add),
+    # 新增任务(样例)
+    path('task/addExample', task_add_example),
     # 移除任务(指定)
     path('task/remove', task_remove),
     # 移除任务(所有)

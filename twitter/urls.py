@@ -20,8 +20,12 @@ urlpatterns = [
     path('autoGetImg', autoGetImg),
     # 展示推文数据
     path('showTweets', showTweets),
-    # 更新多用户推文
-    path('batchUpdateTweets', batchUpdateTweets),
+    # 更新多用户推文(搜索)
+    path('batchUpdateTweetsBySearch', batchUpdateTweetsBySearch),
+    # 更新多用户推文(滚动)
+    path('batchUpdateTweetsByScroll', batchUpdateTweetsByScroll),
+    # 更新多用户推文(定时任务)
+    path('batchUpdateTweetsByTask', batchUpdateTweetsByTask),
     # 更新多用户信息
     path('batchUpdateTwitterUserInfo', batchUpdateTwitterUserInfo),
     # 下载视频至本地

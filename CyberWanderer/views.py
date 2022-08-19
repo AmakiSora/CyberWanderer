@@ -59,7 +59,7 @@ def download_all_from_qiniu(request):
 
 
 # 新增任务(样例)
-def task_add(request):
+def task_add_example(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         # 任务id
@@ -68,7 +68,7 @@ def task_add(request):
         cron = body.get('cron', None)
         # 任务自定义参数
         params = body.get('params', None)
-        APSchedulerTask.add(job_id, cron, params)
+        APSchedulerTask.add_example(job_id, cron, dict(params))
         return responseUtils.ok('新增定时任务 ' + job_id + ' 成功!')
 
 

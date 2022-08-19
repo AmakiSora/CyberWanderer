@@ -20,16 +20,36 @@ scheduler.start()
 
 
 # 新增任务(样例)
-def add(job_id, cron, params):
+def add_example(job_id, cron, params):
     scheduler.add_job(
-        example_function,
+        example_task,
         trigger=CronTrigger(**cron),
         id=job_id,
         max_instances=1,
         replace_existing=True,
         kwargs=params
     )
-    logger.info("新增定时任务,id:" + job_id + " ,cron:" + cron + " ,params" + params)
+    logger.info("新增定时任务,id:" + job_id + " ,cron:" + str(cron) + " ,params" + str(params))
+
+
+# 样例任务
+def example_task(param):
+    logger.info("样例任务执行!")
+    logger.info("样例任务参数: " + param)
+    logger.info("样例任务结束!")
+
+
+# 新增任务
+def add(job_id, cron, func, params):
+    scheduler.add_job(
+        func,
+        trigger=CronTrigger(**cron),
+        id=job_id,
+        max_instances=1,
+        replace_existing=True,
+        kwargs=params
+    )
+    logger.info("新增定时任务,id:" + job_id + " ,cron:" + str(cron) + " ,params" + str(params))
 
 
 # 移除任务(指定)
@@ -85,9 +105,3 @@ def query():
     jobs = scheduler.get_jobs()
     logger.info(jobs)
     return jobs
-
-
-# 示例任务
-def example_function(param):
-    logger.info("定时任务样例!")
-    logger.info(param)

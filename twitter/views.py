@@ -2,9 +2,11 @@ import datetime
 import json
 import logging
 
+from CyberWanderer.task import APSchedulerTask
 from CyberWanderer.utils import responseUtils, downloadUtils
 from .service import twitterUserService, userTweetsService, twitterRequestService, searchTweetsService, \
     twitterDownloadService, showTweetsService
+from .task import autoTwitterTask
 
 logger = logging.getLogger(__name__)
 
@@ -127,8 +129,44 @@ def showTweets(request):
     return responseUtils.ok('', data)
 
 
-# 更新多用户推文
-def batchUpdateTweets(request):
+# 更新多用户推文(搜索)
+def batchUpdateTweetsBySearch(request):
+    if request.method == 'POST':
+        twitterRequestService.get_token()
+        body = json.loads(request.body)
+        twitter_user_param = body.get('twitter_user_param', None)
+        to_db = body.get('to_db', True)  # 是否入库
+        threads = body.get('threads', False)  # 多线程
+        searchDay = body.get('searchDay', 7)  # 搜索天数(默认7天)
+        if twitter_user_param is None:
+            return responseUtils.params_error("筛选用户参数不能为空！")
+        logger.info('筛选用户参数: ' + str(twitter_user_param))
+        # 根据user_param获取usernameList
+        usernameList = twitterUserService.getUsernameListByUserParam(**twitter_user_param)
+        if not usernameList:
+            return responseUtils.params_error("筛选用户不存在！")
+        now = datetime.datetime.today()
+        since = (now - datetime.timedelta(searchDay)).strftime("%Y-%m-%d")
+        until = now.strftime("%Y-%m-%d")
+        logger.info('获取时间区间 : ' + since + ' 到 ' + until)
+        intervalDays = 1
+        resultList = []  # 返回信息列表
+        for username in usernameList:
+            if threads:  # 使用多线程
+                searchTweetsService.auto_get_user_search_tweets_async(username, since, until, intervalDays)
+            else:
+                searchTweetsService.auto_get_user_search_tweets(username, since, until, to_db, intervalDays)
+            oldCount, newCount = userTweetsService.updateTweetCount(username)
+            result = '用户:' + username + '获取搜索推文成功!' + \
+                     '新增 ' + str(newCount - oldCount) + ' 条,' + \
+                     '现有 ' + str(newCount) + ' 条!\n'
+            resultList.append(result)
+        logger.info(str(resultList))
+        return responseUtils.ok('更新多用户推文成功', resultList)
+
+
+# 更新多用户推文(滚动)
+def batchUpdateTweetsByScroll(request):
     if request.method == 'POST':
         twitterRequestService.get_token()
         body = json.loads(request.body)
@@ -138,8 +176,6 @@ def batchUpdateTweets(request):
         updateTweet = body.get('updateTweet', False)  # 是否更新
         frequency = body.get('frequency', 20)  # 循环次数
         threads = body.get('threads', False)  # 多线程
-        useSearch = body.get('useSearch', False)  # 使用搜索的方式更新
-        searchDay = body.get('searchDay', 7)  # 搜索天数(默认7天)
         if twitter_user_param is None:
             return responseUtils.params_error("筛选用户参数不能为空！")
         logger.info('筛选用户参数: ' + str(twitter_user_param))
@@ -147,39 +183,27 @@ def batchUpdateTweets(request):
         usernameList = twitterUserService.getUsernameListByUserParam(**twitter_user_param)
         if not usernameList:
             return responseUtils.params_error("筛选用户不存在！")
+        if threads:  # 使用多线程
+            result = userTweetsService.batchUpdateTweetsThreads(usernameList, count, to_db, frequency, updateTweet)
+        else:
+            result = userTweetsService.batchUpdateTweets(usernameList, count, to_db, frequency, updateTweet)
+        logger.info(result)
+        return responseUtils.ok('更新多用户推文成功', result)
 
-        if useSearch:  # 使用搜索的方式更新
-            now = datetime.datetime.today()
-            since = (now - datetime.timedelta(searchDay)).strftime("%Y-%m-%d")
-            until = now.strftime("%Y-%m-%d")
-            logger.info('获取时间区间 : ' + since + ' 到 ' + until)
-            intervalDays = 1
-            resultList = []  # 返回信息列表
-            if threads:  # 使用多线程
-                for username in usernameList:
-                    searchTweetsService.auto_get_user_search_tweets_async(username, since, until, intervalDays)
-                    oldCount, newCount = userTweetsService.updateTweetCount(username)
-                    result = '用户:' + username + '获取搜索推文成功!' + \
-                             '新增 ' + str(newCount - oldCount) + ' 条,' + \
-                             '现有 ' + str(newCount) + ' 条!\n'
-                    resultList.append(result)
-            else:
-                for username in usernameList:
-                    searchTweetsService.auto_get_user_search_tweets(username, since, until, to_db, intervalDays)
-                    oldCount, newCount = userTweetsService.updateTweetCount(username)
-                    result = '用户:' + username + '获取搜索推文成功!' + \
-                             '新增 ' + str(newCount - oldCount) + ' 条,' + \
-                             '现有 ' + str(newCount) + ' 条!\n'
-                    resultList.append(result)
-            logger.info(str(resultList))
-            return responseUtils.ok('更新多用户推文成功', resultList)
-        else:  # 使用滚动的方式更新
-            if threads:  # 使用多线程
-                result = userTweetsService.batchUpdateTweetsThreads(usernameList, count, to_db, frequency, updateTweet)
-            else:
-                result = userTweetsService.batchUpdateTweets(usernameList, count, to_db, frequency, updateTweet)
-            logger.info(result)
-            return responseUtils.ok('更新多用户推文成功', result)
+
+# 更新多个用户推文(新增定时任务)
+def batchUpdateTweetsByTask(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        # 任务id
+        job_id = body.get('job_id', None)
+        # 执行时间
+        cron = body.get('cron', None)
+        # 任务自定义参数
+        params = body.get('params', None)
+        params = {"params": params}
+        APSchedulerTask.add(job_id=job_id, cron=cron, func=autoTwitterTask.batchUpdateTweetsByTask, params=params)
+        return responseUtils.ok('新增定时任务 ' + job_id + ' 成功!')
 
 
 # 批量更新用户信息
