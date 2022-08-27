@@ -4,12 +4,17 @@
 import datetime
 import logging
 
-from twitter.service import twitterRequestService, twitterUserService, searchTweetsService, userTweetsService
+from django_apscheduler import util
+
+from CyberWanderer.utils import downloadUtils
+from twitter.service import twitterRequestService, twitterUserService, searchTweetsService, userTweetsService, \
+    twitterDownloadService
 
 logger = logging.getLogger(__name__)
 
 
 # 定时获取推文(搜索)
+@util.close_old_connections
 def batchUpdateTweetsByTask(params):
     twitterRequestService.get_token()
     # 筛选用户参数
@@ -42,3 +47,20 @@ def batchUpdateTweetsByTask(params):
                  '现有 ' + str(newCount) + ' 条!\n'
         resultList.append(result)
     logger.info(str(resultList))
+
+
+# 定时下载图片
+@util.close_old_connections
+def autoGetImgByTask(params):
+    # 获取图片范围
+    filter_obj = params.get('tweets_param', None)
+    if filter_obj is None:
+        logger.error("filter_obj不能为空!")
+        return "filter_obj不能为空！"
+    # 下载方式
+    download_method = params.get('download_method', 'qiniu')
+
+    urls = twitterDownloadService.get_img_url(**filter_obj)
+    result = downloadUtils.auto_get_img(urls=urls, download_method=download_method)
+
+    logger.info('自动获取图片成功' + result)

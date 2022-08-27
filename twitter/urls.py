@@ -18,6 +18,8 @@ urlpatterns = [
     path('autoGetUserSearchTweets', autoGetUserSearchTweets),
     # 自动获取图片
     path('autoGetImg', autoGetImg),
+    # 自动获取图片(定时任务)
+    path('autoGetImgByTask', autoGetImgByTask),
     # 展示推文数据
     path('showTweets', showTweets),
     # 更新多用户推文(搜索)

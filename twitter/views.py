@@ -121,6 +121,21 @@ def autoGetImg(request):
         return responseUtils.ok('自动获取图片成功', result)
 
 
+# 自动获取图片(新增定时任务)
+def autoGetImgByTask(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        # 任务id
+        job_id = body.get('job_id', None)
+        # 执行时间
+        cron = body.get('cron', None)
+        # 任务自定义参数
+        params = body.get('params', None)
+        params = {"params": params}
+        APSchedulerTask.add(job_id=job_id, cron=cron, func=autoTwitterTask.autoGetImgByTask, params=params)
+        return responseUtils.ok('新增定时任务 ' + job_id + ' 成功!')
+
+
 # 展示推文数据
 def showTweets(request):
     logger.info(request.GET.items())
