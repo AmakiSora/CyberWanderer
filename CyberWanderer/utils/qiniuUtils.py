@@ -7,13 +7,13 @@ import requests
 from qiniu import BucketManager
 from CyberWanderer import settings
 
-# 下载图片到对象存储(七牛云)
 from CyberWanderer.utils.threadUtil import multithreading_list
 import logging
 
 logger = logging.getLogger(__name__)
 
 
+# 下载图片到对象存储(七牛云)
 def download_file_qiniu(url, file_name='', bucket_name='default-0', useProxy=False):
     if file_name == '':
         file_name = url.split('/')[-1]
