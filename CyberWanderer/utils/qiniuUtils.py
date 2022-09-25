@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 # 下载图片到对象存储(七牛云)
-def download_file_qiniu(url, file_name='', bucket_name='default-0', useProxy=False):
+def upload_net_file_to_qiniu(url, bucket_name, file_name='', useProxy=False):
     if file_name == '':
         file_name = url.split('/')[-1]
     # 校验文件是否已存在
-    if qiniu_get_info(file_name, bucket_name) is not None:
+    if qiniu_get_object_info(file_name, bucket_name) is not None:
         logger.info(str('资源已存在' + str(url)))
         return 'exist', None
     token = settings.QN.upload_token(bucket_name, file_name, 60)
@@ -31,10 +31,10 @@ def download_file_qiniu(url, file_name='', bucket_name='default-0', useProxy=Fal
         if r.status_code == 200:
             try:
                 re, info = qiniu.put_data(token, file_name, data=r.content)
-                logger.info(str("上传到云成功,url:" + str(url)))
+                logger.info(str("上传到七牛云成功,url:" + str(url)))
                 return 'success', None
             except:
-                logger.warning(str("上传到云失败,url:" + str(url)))
+                logger.warning(str("上传到七牛云失败,url:" + str(url)))
                 return 'fail', None
         else:
             logger.warning(str("资源已失效,url:" + str(url)))
@@ -45,7 +45,7 @@ def download_file_qiniu(url, file_name='', bucket_name='default-0', useProxy=Fal
 
 
 # 七牛去获取文件存入对象存储(不能翻墙)
-def download_qiniu_get(url, file_name='', bucket_name='default-0'):
+def qiniu_get_net_file(url, bucket_name, file_name=''):
     bucket = BucketManager(settings.QN)
     # 没有命名就取本身名字
     if file_name == '':
@@ -55,10 +55,10 @@ def download_qiniu_get(url, file_name='', bucket_name='default-0'):
 
 
 # 本地文件上传到云
-def upload_file_qiniu(local_url, file_name='', bucket_name='default-0'):
+def upload_local_file_to_qiniu(local_url, bucket_name, file_name=''):
     if file_name == '':
         file_name = local_url.split('/')[-1]
-    if qiniu_get_info(file_name, bucket_name) is not None:
+    if qiniu_get_object_info(file_name, bucket_name) is not None:
         logger.info(str('资源已存在' + str(local_url)))
         return 'exist', None
     token = settings.QN.upload_token(bucket_name, file_name, 60)
@@ -72,14 +72,14 @@ def upload_file_qiniu(local_url, file_name='', bucket_name='default-0'):
 
 
 # 本地文件夹上传到云(多线程)
-def upload_folder_qiniu(folder_name, bucket_name='default-0'):
+def upload_local_folder_to_qiniu(folder_name, bucket_name):
     # a代表所在根目录; b代表根目录下所有文件夹(以列表形式存在); c代表根目录下所有文件
     for a, b, c in os.walk(folder_name):
         urls = []
         for file_name in c:
             local_url = a + '/' + file_name
             urls.append(local_url)
-        code, statusInfo = multithreading_list(urls, upload_file_qiniu, ('', bucket_name))
+        code, statusInfo = multithreading_list(urls, upload_local_file_to_qiniu, (bucket_name, ''))
         if code == 0:
             return "无文件上传!"
         elif code == 200:
@@ -90,14 +90,14 @@ def upload_folder_qiniu(folder_name, bucket_name='default-0'):
 
 
 # 获取单一资源信息(没有返回None)
-def qiniu_get_info(file_name, bucket_name='default-0'):
+def qiniu_get_object_info(file_name, bucket_name='default-0'):
     bucket = BucketManager(settings.QN)
     re, info = bucket.stat(bucket_name, file_name)
     return re
 
 
 # 获取资源池内所有文件信息
-def qiniu_get_all_info(bucket_name='default-0', marker=None, url_prefix=''):
+def qiniu_get_all_object_info(bucket_name='default-0', marker=None, url_prefix=''):
     bucket = BucketManager(settings.QN)
     ret, eof, info = bucket.list(bucket=bucket_name, marker=marker, limit=1000)  # 默认1000条
     items = ret['items']
@@ -106,5 +106,3 @@ def qiniu_get_all_info(bucket_name='default-0', marker=None, url_prefix=''):
     for i in items:
         urls.append(url_prefix + i['key'])
     return urls, ret.get('marker')
-
-# print(upload_folder_qiniu('D:/cosmos/test/sally_amaki'))  # 本地上传文件

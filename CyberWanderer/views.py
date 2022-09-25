@@ -5,13 +5,15 @@ import logging
 from django.http import HttpResponse
 
 from CyberWanderer.task import APSchedulerTask
-from CyberWanderer.utils import downloadUtils, responseUtils, qiniuUtils
+from CyberWanderer.utils import responseUtils
+from CyberWanderer.utils.downloadUtils import download_file_local_by_youget, auto_get_img
+from CyberWanderer.utils.qiniuUtils import qiniu_get_all_object_info
 
 logger = logging.getLogger(__name__)
 
 
 def page_hello(request):
-    html = 'This is CyberWanderer V2.3.1'
+    html = 'This is CyberWanderer V2.3.3'
     return HttpResponse(html)
 
 
@@ -25,7 +27,7 @@ def get_resource(request):
         file_name = body.get('file_name', None)
         folder_name = body.get('folder_name', None)
         proxy = body.get('proxy', False)
-        return responseUtils.ok(downloadUtils.download_file_local(url, file_name, folder_name, proxy))
+        return responseUtils.ok(download_file_local_by_youget(url, file_name, folder_name, proxy))
 
 
 # 全量下载七牛云文件
@@ -43,10 +45,12 @@ def download_all_from_qiniu(request):
         # 全量下载
         while True:
             # 获取
-            urls, marker = qiniuUtils.qiniu_get_all_info(bucket_name=bucket_name, marker=marker, url_prefix=url_prefix)
+            urls, marker = qiniu_get_all_object_info(bucket_name=bucket_name,
+                                                     marker=marker,
+                                                     url_prefix=url_prefix)
             download_method = {'method': 'local',
                                'local_url': folder_name}
-            result_msg = downloadUtils.auto_get_img(urls, download_method)
+            result_msg = auto_get_img(urls, download_method)
             logger.info(result_msg)
             if not marker:
                 break

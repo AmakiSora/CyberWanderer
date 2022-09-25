@@ -238,6 +238,11 @@ PROXIES = {
 # 七牛云设置
 QN = Auth(parser.get('qiniu', 'AccessKey'), parser.get('qiniu', 'SecretKey'))
 
+# Minio设置
+MINIO_ENDPOINT = parser.get('minio', 'endpoint')
+MINIO_ACCESS_KEY = parser.get('minio', 'access_key')
+MINIO_SECRET_KEY = parser.get('minio', 'secret_key')
+
 # 百度翻译设置
 BAIDU = {
     "appid": parser.get('baidu', 'appid'),
