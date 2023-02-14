@@ -7,18 +7,27 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * OkHttp配置
+ * OkHttpConfig
  */
 @Slf4j
 @Configuration
 public class OkHttpConfig {
 
+    /**
+     * Proxy hostname
+     */
     @Value("${okhttp.proxy.hostname:}")
     private String hostname;
 
+    /**
+     * Proxy port
+     */
     @Value("${okhttp.proxy.port:0}")
     private int port;
 
+    /**
+     * OkHttp init
+     */
     @Bean
     public void initStatic() {
         OkHttpUtils.setProxy(hostname, port);

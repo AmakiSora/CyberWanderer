@@ -9,14 +9,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 测试用
+ * test
  */
 @Slf4j
 @RestController
 @RequestMapping("/test")
 public class TestController {
+    /**
+     * Simple get request
+     */
     @GetMapping("/get")
-    public String test(@RequestParam String url) {
+    public String get(@RequestParam String url) {
         try {
             Response response = OkHttpUtils.get(url);
             assert response.body() != null;

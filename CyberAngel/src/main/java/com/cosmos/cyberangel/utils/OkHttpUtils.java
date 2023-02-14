@@ -10,7 +10,7 @@ import java.net.Proxy;
 import java.util.Map;
 
 /**
- * OkHttp工具类
+ * OkHttpUtils
  */
 @Slf4j
 public class OkHttpUtils {
@@ -18,7 +18,7 @@ public class OkHttpUtils {
     private static OkHttpClient client = new OkHttpClient.Builder().build();
 
     /**
-     * 设置代理
+     * setProxy
      */
     public static void setProxy(String hostname, int port) {
         if (StringUtils.hasText(hostname)) {
@@ -30,6 +30,9 @@ public class OkHttpUtils {
         }
     }
 
+    /**
+     * get request
+     */
     public static Response get(String url) throws IOException {
         return get(url, null);
     }
@@ -44,6 +47,9 @@ public class OkHttpUtils {
 
     }
 
+    /**
+     * post request
+     */
     public static Response post(String url) throws IOException {
         return post(url, "", null);
     }
