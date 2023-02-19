@@ -22,14 +22,25 @@ public class OkHttpConfig {
     /**
      * Proxy port
      */
-    @Value("${okhttp.proxy.port:0}")
+    @Value("${okhttp.proxy.port:80}")
     private int port;
+
+    /**
+     * Proxy enable
+     */
+    @Value("${okhttp.proxy.enable:false}")
+    private boolean enable;
 
     /**
      * OkHttp init
      */
     @Bean
     public void initStatic() {
-        OkHttpUtils.setProxy(hostname, port);
+        if (enable) {
+            log.info("OkHttp enable proxy");
+            OkHttpUtils.setProxy(hostname, port);
+        } else {
+            log.info("OkHttp disable proxy");
+        }
     }
 }

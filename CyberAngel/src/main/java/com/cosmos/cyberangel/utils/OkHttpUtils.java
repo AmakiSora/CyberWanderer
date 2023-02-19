@@ -26,7 +26,7 @@ public class OkHttpUtils {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(hostname, port));
             client = new OkHttpClient.Builder().proxy(proxy).build();
         } else {
-            log.info("OkHttp No proxy set");
+            log.info("OkHttp proxy hostname does not exist");
         }
     }
 
