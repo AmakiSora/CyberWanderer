@@ -67,4 +67,25 @@ public class OkHttpUtils {
         Request request = new Request.Builder().url(url).post(body).headers(headBuilder.build()).build();
         return client.newCall(request).execute();
     }
+
+    /**
+     * put request
+     */
+    public static Response put(String url) throws IOException {
+        return put(url, "", null);
+    }
+
+    public static Response put(String url, String content) throws IOException {
+        return put(url, content, null);
+    }
+
+    public static Response put(String url, String content, Map<String, String> headMap) throws IOException {
+        Headers.Builder headBuilder = new Headers.Builder();
+        if (headMap != null) {
+            headMap.forEach(headBuilder::add);
+        }
+        RequestBody body = RequestBody.create(content, MediaType.parse("application/json"));
+        Request request = new Request.Builder().url(url).put(body).headers(headBuilder.build()).build();
+        return client.newCall(request).execute();
+    }
 }
