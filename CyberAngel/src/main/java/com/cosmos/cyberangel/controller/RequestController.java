@@ -5,10 +5,8 @@ import com.cosmos.cyberangel.entity.ResponseVO;
 import com.cosmos.cyberangel.service.RequestService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Request Controller
@@ -21,9 +19,14 @@ public class RequestController {
     @Autowired
     private RequestService requestService;
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseVO<?> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        return ResponseVO.error("Missing parameter：" + e.getParameterName());
+    }
+
     @AutoLog
     @GetMapping("/get")
-    public ResponseVO get(@RequestParam String url) {
+    public ResponseVO<?> get(@RequestParam String url) {
         try {
             url = requestService.checkUrl(url);
             String responseBody = requestService.get(url);
@@ -36,7 +39,7 @@ public class RequestController {
 
     @AutoLog
     @GetMapping("/post")
-    public ResponseVO post(@RequestParam String url, @RequestParam String json) {
+    public ResponseVO<?> post(@RequestParam String url, @RequestParam String json) {
         try {
             url = requestService.checkUrl(url);
             String responseBody = requestService.post(url, json);
@@ -49,7 +52,7 @@ public class RequestController {
 
     @AutoLog
     @GetMapping("/put")
-    public ResponseVO put(@RequestParam String url, @RequestParam String json) {
+    public ResponseVO<?> put(@RequestParam String url, @RequestParam String json) {
         try {
             url = requestService.checkUrl(url);
             String responseBody = requestService.put(url, json);
