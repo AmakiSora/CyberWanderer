@@ -1,19 +1,19 @@
 package com.cosmos.cyberangel.controller;
 
 import com.cosmos.cyberangel.aop.AutoLog;
-import com.cosmos.cyberangel.job.Job1;
+import com.cosmos.cyberangel.entity.JobInfo;
+import com.cosmos.cyberangel.entity.ResponseVO;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Scheduled Tasks Controller
@@ -26,110 +26,126 @@ public class TaskController {
     private SchedulerFactoryBean schedulerFactoryBean;
 
     /**
-     * 添加定时任务
-     *
-     * @param jobName          任务名称
-     * @param jobGroupName     任务组名称
-     * @param triggerName      触发器名称
-     * @param triggerGroupName 触发器组名称
-     * @param cronExpression   cron表达式
-     * @return
-     * @throws SchedulerException
+     * addJob
      */
     @AutoLog
     @PostMapping("/addJob")
-    public ResponseEntity<String> addJob(@RequestParam String jobName, @RequestParam String jobGroupName,
-                                         @RequestParam String triggerName, @RequestParam String triggerGroupName,
-                                         @RequestParam String cronExpression) throws SchedulerException {
-        Scheduler scheduler = schedulerFactoryBean.getScheduler();
-        JobDetail jobDetail = JobBuilder.newJob(Job1.class).withIdentity(jobName, jobGroupName).build();
-        CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
-        Trigger trigger = TriggerBuilder
-                .newTrigger()
-                .withIdentity(triggerName, triggerGroupName)
-                .withSchedule(scheduleBuilder).build();
-        scheduler.scheduleJob(jobDetail, trigger);
-        return ResponseEntity.ok("定时任务添加成功");
+    public ResponseVO<?> addJob(@RequestBody JobInfo jobInfo) {
+        try {
+            Scheduler scheduler = schedulerFactoryBean.getScheduler();
+            String className = "com.cosmos.cyberangel.job." + jobInfo.getJobClassName();
+            Class<? extends QuartzJobBean> jobClass = (Class<? extends QuartzJobBean>) Class.forName(className);
+            JobDetail jobDetail = JobBuilder
+                    .newJob(jobClass)
+                    .withIdentity(jobInfo.getJobName(), jobInfo.getJobGroupName())
+                    .withDescription(jobInfo.getJobDescription())
+                    .build();
+            Trigger trigger = TriggerBuilder
+                    .newTrigger()
+                    .withIdentity(jobInfo.getTriggerName(), jobInfo.getTriggerGroupName())
+                    .withDescription(jobInfo.getTriggerDescription())
+                    .withSchedule(CronScheduleBuilder.cronSchedule(jobInfo.getCronExpression()))
+                    .build();
+            scheduler.scheduleJob(jobDetail, trigger);
+            return ResponseVO.ok("Add job success!");
+        } catch (ClassNotFoundException e) {
+            log.error("Add job fail!", e);
+            return ResponseVO.error("add job fail! class " + e.getMessage() + " not found!");
+        } catch (Exception e) {
+            log.error("Add job fail!", e);
+            return ResponseVO.error("Add job fail!", e.getMessage());
+        }
     }
 
     /**
-     * 删除定时任务
-     *
-     * @param jobName          任务名称
-     * @param jobGroupName     任务组名称
-     * @param triggerName      触发器名称
-     * @param triggerGroupName 触发器组名称
-     * @return
-     * @throws SchedulerException
+     * deleteJob
      */
     @AutoLog
     @DeleteMapping("/deleteJob")
-    public ResponseEntity<String> deleteJob(@RequestParam String jobName, @RequestParam String jobGroupName,
-                                            @RequestParam String triggerName, @RequestParam String triggerGroupName) throws SchedulerException {
-        Scheduler scheduler = schedulerFactoryBean.getScheduler();
-        JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);
-        TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
-        scheduler.pauseTrigger(triggerKey);
-        scheduler.unscheduleJob(triggerKey);
-        scheduler.deleteJob(jobKey);
-        return ResponseEntity.ok("定时任务删除成功");
+    public ResponseVO<?> deleteJob(@RequestParam String jobName,
+                                   @RequestParam String jobGroupName) {
+        try {
+            Scheduler scheduler = schedulerFactoryBean.getScheduler();
+            JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);
+            JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+            if (ObjectUtils.isEmpty(jobDetail)) {
+                return ResponseVO.error("Delete job [" + jobName + "] fail!",
+                        "Please check that the task you want to delete already exists!");
+            }
+            JobInfo jobInfo = new JobInfo();
+            jobInfo.setJobName(jobDetail.getKey().getName());
+            jobInfo.setJobGroupName(jobDetail.getKey().getGroup());
+            jobInfo.setJobClassName(jobDetail.getJobClass().getSimpleName());
+            jobInfo.setJobDescription(jobDetail.getDescription());
+            if (scheduler.deleteJob(jobKey)) {
+                return ResponseVO.ok("Delete job [" + jobName + "] success!", jobInfo);
+            } else {
+                return ResponseVO.error("Delete job [" + jobName + "] fail!");
+            }
+        } catch (Exception e) {
+            log.error("Delete job fail!", e);
+            return ResponseVO.error("Delete job fail!", e.getMessage());
+        }
     }
 
     /**
-     * 修改定时任务
-     *
-     * @param jobName          任务名称
-     * @param jobGroupName     任务组名称
-     * @param triggerName      触发器名称
-     * @param triggerGroupName 触发器组名称
-     * @param cronExpression   cron表达式
-     * @return
-     * @throws SchedulerException
+     * updateJob
      */
     @AutoLog
     @PutMapping("/updateJob")
-    public ResponseEntity<String> updateJob(@RequestParam String jobName, @RequestParam String jobGroupName,
-                                            @RequestParam String triggerName, @RequestParam String triggerGroupName,
-                                            @RequestParam String cronExpression) throws SchedulerException {
-        Scheduler scheduler = schedulerFactoryBean.getScheduler();
-        TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
-        CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
-        CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
-        trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
-        scheduler.rescheduleJob(triggerKey, trigger);
-        return ResponseEntity.ok("定时任务修改成功");
+    public ResponseVO<?> updateJob(@RequestBody JobInfo jobInfo) {
+        try {
+            Scheduler scheduler = schedulerFactoryBean.getScheduler();
+            TriggerKey triggerKey = TriggerKey.triggerKey(jobInfo.getTriggerName(), jobInfo.getTriggerGroupName());
+            CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(jobInfo.getCronExpression());
+            CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
+            trigger = trigger
+                    .getTriggerBuilder()
+                    .withIdentity(triggerKey)
+                    .withSchedule(scheduleBuilder)
+                    .build();
+            scheduler.rescheduleJob(triggerKey, trigger);
+            return ResponseVO.ok("Update job success!");
+        } catch (Exception e) {
+            log.error("Update job fail!", e);
+            return ResponseVO.error("Update job fail!", e.getMessage());
+        }
     }
 
+    /**
+     * jobs
+     */
     @AutoLog
     @GetMapping("/jobs")
-    public List<Map<String, Object>> listJobs() throws SchedulerException {
-        List<Map<String, Object>> jobs = new ArrayList<>();
+    public ResponseVO<?> jobs() throws SchedulerException {
+        List<JobInfo> jobs = new ArrayList<>();
         Scheduler scheduler = schedulerFactoryBean.getScheduler();
         for (String groupName : scheduler.getJobGroupNames()) {
             for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
                 JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-                List<Trigger> triggers = (List<Trigger>) scheduler.getTriggersOfJob(jobKey);
-                Map<String, Object> job = new HashMap<>();
-                job.put("name", jobKey.getName());
-                job.put("group", jobKey.getGroup());
-                job.put("description", jobDetail.getDescription());
-                job.put("jobClass", jobDetail.getJobClass().getSimpleName());
-                job.put("triggerCount", triggers.size());
-                jobs.add(job);
+                JobInfo jobInfo = new JobInfo();
+                jobInfo.setJobName(jobKey.getName());
+                jobInfo.setJobGroupName(jobKey.getGroup());
+                jobInfo.setJobClassName(jobDetail.getJobClass().getSimpleName());
+                jobInfo.setJobDescription(jobDetail.getDescription());
+                jobs.add(jobInfo);
             }
         }
-        return jobs;
+        return ResponseVO.ok("", jobs);
     }
 
+    /**
+     * triggers
+     */
     @AutoLog
     @GetMapping("/triggers")
-    public String getTriggers() throws SchedulerException {
+    public ResponseVO<?> getTriggers() throws SchedulerException {
         List<Trigger> triggers = new ArrayList<>();
         for (String groupName : schedulerFactoryBean.getScheduler().getTriggerGroupNames()) {
             for (TriggerKey triggerKey : schedulerFactoryBean.getScheduler().getTriggerKeys(GroupMatcher.triggerGroupEquals(groupName))) {
                 triggers.add(schedulerFactoryBean.getScheduler().getTrigger(triggerKey));
             }
         }
-        return triggers.toString();
+        return ResponseVO.ok("", triggers.toString());
     }
 }
