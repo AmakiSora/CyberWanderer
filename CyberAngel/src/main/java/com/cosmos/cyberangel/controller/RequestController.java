@@ -5,8 +5,10 @@ import com.cosmos.cyberangel.entity.ResponseVO;
 import com.cosmos.cyberangel.service.RequestService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Request Controller
@@ -18,11 +20,6 @@ public class RequestController {
 
     @Autowired
     private RequestService requestService;
-
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseVO<?> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
-        return ResponseVO.error("Missing parameter：" + e.getParameterName());
-    }
 
     @AutoLog
     @GetMapping("/get")
