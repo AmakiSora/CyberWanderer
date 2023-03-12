@@ -1,12 +1,14 @@
 package com.cosmos.cyberangel.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.Date;
 
 /**
  * request_response_log
  */
+@Data
 @Entity
 @Table(name = "request_response_log")
 public class RequestLog {
@@ -40,4 +42,19 @@ public class RequestLog {
 
     @Column(name = "status")
     private Integer status;
+
+    public String show() {
+        return "RequestLog{" +
+                "id=" + id + '\'' +
+                ", requestUrl='" + requestUrl + '\'' +
+                ", requestMethod='" + requestMethod + '\'' +
+                ", requestHeaders='" + requestHeaders + '\'' +
+                ", requestBody='" + requestBody + '\'' +
+                ", responseCode=" + responseCode + '\'' +
+                ", responseHeaders='" + responseHeaders + '\'' +
+                ", responseBody='" + "ignore!" + '\'' +
+                ", requestTime=" + requestTime + '\'' +
+                ", status=" + status +
+                '}';
+    }
 }
