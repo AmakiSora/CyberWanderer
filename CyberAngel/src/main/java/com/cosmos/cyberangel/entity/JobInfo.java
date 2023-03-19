@@ -2,6 +2,7 @@ package com.cosmos.cyberangel.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import org.quartz.JobDataMap;
 
 /**
  * JobInfo
@@ -25,4 +26,6 @@ public class JobInfo {
     private String jobDescription;
 
     private String triggerDescription;
+
+    private JobDataMap jobDataMap;
 }

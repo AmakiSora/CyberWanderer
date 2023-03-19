@@ -39,6 +39,7 @@ public class TaskController {
                     .newJob(jobClass)
                     .withIdentity(jobInfo.getJobName(), jobInfo.getJobGroupName())
                     .withDescription(jobInfo.getJobDescription())
+                    .setJobData(jobInfo.getJobDataMap())
                     .build();
             Trigger trigger = TriggerBuilder
                     .newTrigger()
@@ -83,8 +84,8 @@ public class TaskController {
                 return ResponseVO.error("Delete job [" + jobName + "] fail!");
             }
         } catch (Exception e) {
-            log.error("Delete job fail!", e);
-            return ResponseVO.error("Delete job fail!", e.getMessage());
+            log.error("Delete job [" + jobName + "] fail!", e);
+            return ResponseVO.error("Delete job [" + jobName + "] fail!", e.getMessage());
         }
     }
 
