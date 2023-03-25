@@ -31,6 +31,19 @@ public class OkHttpUtils {
     }
 
     /**
+     * checkUrl
+     */
+    public static String checkUrl(String url) {
+        if (!StringUtils.hasText(url)) {
+            throw new IllegalArgumentException("Please enter the correct url!");
+        }
+        if (!(url.startsWith("http://") || url.startsWith("https://"))) {
+            url = "http://" + url;
+        }
+        return url;
+    }
+
+    /**
      * get request
      */
     public static Response get(String url) throws IOException {
