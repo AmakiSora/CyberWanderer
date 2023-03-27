@@ -5,6 +5,7 @@ import com.cosmos.cyberangel.repository.RequestLogRepository;
 import com.cosmos.cyberangel.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 /**
- * GetJob
+ * RequestJob
  */
 @Slf4j
 @Component
@@ -24,7 +25,7 @@ public class RequestJob extends QuartzJobBean {
     private RequestLogRepository requestLogRepository;
 
     @Override
-    protected void executeInternal(JobExecutionContext context) {
+    protected void executeInternal(@NotNull JobExecutionContext context) {
         try {
             JobDataMap jobDataMap = context.getMergedJobDataMap();
             RequestLog requestLog = (RequestLog) jobDataMap.get("requestParameter");

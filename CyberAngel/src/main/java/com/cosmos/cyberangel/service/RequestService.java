@@ -2,9 +2,7 @@ package com.cosmos.cyberangel.service;
 
 import com.cosmos.cyberangel.utils.OkHttpUtils;
 import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 /**
  * Request Service
@@ -12,17 +10,6 @@ import org.springframework.util.StringUtils;
 @Service
 public class RequestService {
 
-    public String checkUrl(String url) {
-        if (!StringUtils.hasText(url)) {
-            throw new IllegalArgumentException("Please enter the correct url!");
-        }
-        if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-            url = "http://" + url;
-        }
-        return url;
-    }
-
-    @NotNull
     private void checkResponse(Response response) throws Exception {
         if (response == null) {
             throw new Exception("Response is null!");

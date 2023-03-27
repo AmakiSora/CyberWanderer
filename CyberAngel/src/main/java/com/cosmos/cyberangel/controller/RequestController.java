@@ -3,6 +3,7 @@ package com.cosmos.cyberangel.controller;
 import com.cosmos.cyberangel.aop.AutoLog;
 import com.cosmos.cyberangel.entity.ResponseVO;
 import com.cosmos.cyberangel.service.RequestService;
+import com.cosmos.cyberangel.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ public class RequestController {
     @GetMapping("/get")
     public ResponseVO<?> get(@RequestParam String url) {
         try {
-            url = requestService.checkUrl(url);
+            url = OkHttpUtils.checkUrl(url);
             String responseBody = requestService.get(url);
             return ResponseVO.ok("Request succeeded!", responseBody);
         } catch (Exception e) {
@@ -38,7 +39,7 @@ public class RequestController {
     @GetMapping("/post")
     public ResponseVO<?> post(@RequestParam String url, @RequestParam String json) {
         try {
-            url = requestService.checkUrl(url);
+            url = OkHttpUtils.checkUrl(url);
             String responseBody = requestService.post(url, json);
             return ResponseVO.ok("Request succeeded!", responseBody);
         } catch (Exception e) {
@@ -51,7 +52,7 @@ public class RequestController {
     @GetMapping("/put")
     public ResponseVO<?> put(@RequestParam String url, @RequestParam String json) {
         try {
-            url = requestService.checkUrl(url);
+            url = OkHttpUtils.checkUrl(url);
             String responseBody = requestService.put(url, json);
             return ResponseVO.ok("Request succeeded!", responseBody);
         } catch (Exception e) {
