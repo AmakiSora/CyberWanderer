@@ -40,8 +40,20 @@ public class RequestLog {
     @Column(name = "request_time")
     private Date requestTime;
 
+    /**
+     * status
+     * 0:Pending
+     * 1:Processed
+     * 2:Skipped
+     */
     @Column(name = "status")
     private Integer status;
+
+    public enum Status {
+        PENDING,
+        PROCESSED,
+        SKIPPED
+    }
 
     public String show() {
         return "RequestLog{" +

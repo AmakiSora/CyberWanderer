@@ -34,11 +34,11 @@ public class ThreadPoolConfig {
     public TaskExecutor processTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         // Set the number of core threads
-        executor.setCorePoolSize(4);
+        executor.setCorePoolSize(12);
         // Set the maximum number of threads
-        executor.setMaxPoolSize(8);
+        executor.setMaxPoolSize(48);
         // Set queue capacity
-        executor.setQueueCapacity(10000);
+        executor.setQueueCapacity(1000);
         // Set thread name prefix
         executor.setThreadNamePrefix("ProcessThread-");
         // Set rejection policy
