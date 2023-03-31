@@ -13,6 +13,6 @@ public interface RequestLogRepository extends JpaRepository<RequestLog, Long> {
 
     List<RequestLog> findByStatus(Integer status, Pageable pageable);
 
-    List<RequestLog> findByStatusAndIdNotIn(Integer status, List<Long> ids, Pageable pageable);
+    List<RequestLog> findByStatusAndIdNotIn(Integer status, Long[] ids, Pageable pageable);
 
 }
