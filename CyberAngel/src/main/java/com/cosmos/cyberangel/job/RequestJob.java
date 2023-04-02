@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import java.io.IOException;
 
 /**
  * RequestJob
@@ -28,40 +28,39 @@ public class RequestJob extends QuartzJobBean {
     protected void executeInternal(@NotNull JobExecutionContext context) {
         try {
             JobDataMap jobDataMap = context.getMergedJobDataMap();
-            RequestLog requestLog = (RequestLog) jobDataMap.get("requestParameter");
-            requestLog.setRequestTime(new Date());
-            String url = OkHttpUtils.checkUrl(requestLog.getRequestUrl());
+            RequestLog requestLog = RequestLog.getLogFromJobDataMap(jobDataMap);
+            String url = requestLog.getRequestUrl();
             switch (requestLog.getRequestMethod().toUpperCase()) {
                 case "GET" -> {
                     Response response = OkHttpUtils.get(url);
                     RequestLog save = save(requestLog, response);
-                    log.info(save.show());
+                    log.debug(save.show());
                 }
                 case "POST" -> {
                     Response response = OkHttpUtils.post(url, requestLog.getRequestBody());
                     RequestLog save = save(requestLog, response);
-                    log.info(save.show());
+                    log.debug(save.show());
                 }
                 case "PUT" -> {
                     Response response = OkHttpUtils.put(url, requestLog.getRequestBody());
                     RequestLog save = save(requestLog, response);
-                    log.info(save.show());
+                    log.debug(save.show());
                 }
                 default -> {
                     String jobName = context.getJobDetail().getKey().getName();
-                    log.warn("jobName:[{}] error request method: [{}]", jobName, requestLog.getRequestMethod());
+                    log.warn("<RequestJob> JobName:[{}] error request method: [{}]", jobName, requestLog.getRequestMethod());
                 }
             }
         } catch (Exception e) {
-            log.error("RequestJob error!",e);
+            log.error("<RequestJob> Error!",e);
         }
     }
 
-    private RequestLog save(RequestLog requestLog, Response response) {
+    private RequestLog save(RequestLog requestLog, Response response) throws IOException {
         requestLog.setResponseCode(response.code());
         requestLog.setResponseHeaders(response.headers().toString());
         if (response.body() != null) {
-            requestLog.setResponseBody(response.body().toString());
+            requestLog.setResponseBody(response.body().string());
         }
         return requestLogRepository.save(requestLog);
     }

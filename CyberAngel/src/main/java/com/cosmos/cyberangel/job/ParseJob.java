@@ -45,9 +45,10 @@ public class ParseJob implements CommandLineRunner {
                     taskExecutor.execute(() -> {
                         try {
                             log.info("<ParseJob> Processing id:[{}],task start!", requestLog.getId());
-                            Thread.sleep(1000);
+                            processing();
+                            parseService.updateStatusById(requestLog.getId(), RequestLog.Status.PROCESSED.ordinal());
                         } catch (Exception e) {
-                            log.error("<ParseJob> Error!", e);
+                            log.error("<ParseJob> Processing id:[{}],error!", requestLog.getId(), e);
                         } finally {
                             processingSet.remove(requestLog.getId());
                             log.info("<ParseJob> Processing id:[{}],task end!", requestLog.getId());
@@ -60,5 +61,9 @@ public class ParseJob implements CommandLineRunner {
         } catch (Exception e) {
             log.error("<ParseJob> Error!", e);
         }
+    }
+
+    public void processing() {
+
     }
 }

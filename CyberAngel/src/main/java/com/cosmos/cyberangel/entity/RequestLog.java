@@ -1,7 +1,9 @@
 package com.cosmos.cyberangel.entity;
 
+import com.cosmos.cyberangel.utils.OkHttpUtils;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.quartz.JobDataMap;
 
 import java.util.Date;
 
@@ -68,5 +70,17 @@ public class RequestLog {
                 ", requestTime=" + requestTime + '\'' +
                 ", status=" + status +
                 '}';
+    }
+
+    public static RequestLog getLogFromJobDataMap(JobDataMap map) {
+        RequestLog requestLog = new RequestLog();
+        requestLog.setRequestUrl(OkHttpUtils.checkUrl(map.getString("requestUrl")));
+        requestLog.setRequestHeaders(map.getString("requestHeaders"));
+        requestLog.setRequestMethod(map.getString("requestMethod"));
+        requestLog.setRequestBody(map.getString("requestBody"));
+        int status = map.get("status") == null ? 0 : Integer.parseInt(map.get("status").toString());
+        requestLog.setStatus(status);
+        requestLog.setRequestTime(new Date());
+        return requestLog;
     }
 }

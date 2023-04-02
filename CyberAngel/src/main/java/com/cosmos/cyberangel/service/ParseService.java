@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -42,5 +43,10 @@ public class ParseService {
             throw new NullPointerException("No data pending processing!");
         }
         return ids;
+    }
+
+    @Transactional
+    public int updateStatusById(Long id, Integer status) {
+        return requestLogRepository.updateStatusById(id, status);
     }
 }
