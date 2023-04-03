@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.cosmos</groupId>
     <artifactId>CyberAngel</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>3.1.0</version>
     <name>CyberAngel</name>
     <description>CyberAngel</description>
     <properties>
