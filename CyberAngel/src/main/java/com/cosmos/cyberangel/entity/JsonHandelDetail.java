@@ -14,6 +14,9 @@ public class JsonHandelDetail {
     @Column(name = "handel_method")
     private String handelMethod;
 
-    @Column(name = "handel_detail")
-    private String handelDetail;
+    @Column(name = "table")
+    private String table;
+
+    @Column(name = "data_structure")
+    private String dataStructure;
 }

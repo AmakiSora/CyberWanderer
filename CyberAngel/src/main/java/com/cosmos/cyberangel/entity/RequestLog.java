@@ -42,6 +42,9 @@ public class RequestLog {
     @Column(name = "request_time")
     private Date requestTime;
 
+    @Column(name = "handel_method")
+    private String handelMethod;
+
     /**
      * status
      * 0:Pending
